@@ -1,0 +1,9 @@
+{
+    "require": {
+        "silex/silex": "~2.0"
+    },
+    "require-dev": {
+        "symfony/browser-kit": "^3.2",
+        "symfony/css-selector": "^3.2"
+    }
+}
