@@ -5,5 +5,10 @@
     "require-dev": {
         "symfony/browser-kit": "^3.2",
         "symfony/css-selector": "^3.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Themis\\": "src/"
+        }
     }
 }
