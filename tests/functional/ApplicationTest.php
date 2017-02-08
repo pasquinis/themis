@@ -18,4 +18,12 @@ class ApplicationTest extends WebTestCase
         $client->request('GET', '/');
         $this->assertEquals(404, $client->getResponse()->getStatusCode());
     }
+
+    public function testShouldReturnTheCorrectContentWhenICallRouteHelloWithSimoneAsParameter()
+    {
+        $client = $this->createClient();
+        $client->request('GET', '/hello/simone/');
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $this->assertEquals('Hello simone', $client->getResponse()->getContent());
+    }
 }
