@@ -3,6 +3,7 @@
 namespace Themis;
 
 use Themis\Controller\Provider\Hello;
+use Themis\Controller\Provider\Transactions;
 
 class Application extends \Silex\Application
 {
@@ -11,5 +12,6 @@ class Application extends \Silex\Application
         parent::__construct();
 
         $this->mount('/hello/{name}', new Hello());
+        $this->mount('/transactions', new Transactions());
     }
 }
