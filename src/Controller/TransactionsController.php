@@ -11,6 +11,7 @@ class TransactionsController
     {
         //$request->request->all();
         $response = new Response();
+        $response->headers->set('Location', 'http://localhost');
         $response->setStatusCode(Response::HTTP_CREATED);
         return $response;
     }

@@ -17,14 +17,14 @@ class ApplicationTest extends WebTestCase
     {
         $client = $this->createClient();
         $client->request('GET', '/');
-        $this->assertEquals(404, $client->getResponse()->getStatusCode());
+        $this->assertTrue($client->getResponse()->isNotFound());
     }
 
     public function testShouldReturnTheCorrectContentWhenICallRouteHelloWithSimoneAsParameter()
     {
         $client = $this->createClient();
         $client->request('GET', '/hello/simone/');
-        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $this->assertTrue($client->getResponse()->isSuccessful());
         $this->assertEquals('Hello simone', $client->getResponse()->getContent());
     }
 
@@ -42,6 +42,7 @@ class ApplicationTest extends WebTestCase
         ];
         $client->request('POST', '/transactions/', $postParameters);
         $this->assertEquals(201, $client->getResponse()->getStatusCode());
+        $this->assertEquals('http://localhost', $client->getResponse()->headers->get('Location'));
     }
 
     private function debug(Application $app)
