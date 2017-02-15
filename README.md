@@ -25,7 +25,17 @@ with:
 $ docker run -it -u 1000:1000 -v $(pwd):/themis:rw -p 9000:8080 pasquinis/phpunit:5.7 sh
 ```
 
+### Create SQLite schema
+
+for the first setup execute inside the container
+
+```bash
+/themis $ sqlite3 app.db < resources/sql/schema.sql
+```
+
 ### Run the PHP Server
+
+inside the container
 
 ```bash
 $ php -S 0.0.0.0:8080 -t /themis/public/ /themis/public/index.php
