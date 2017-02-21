@@ -3,6 +3,7 @@
 namespace Themis;
 
 use Silex\WebTestCase;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ApplicationTest extends WebTestCase
 {
@@ -13,6 +14,9 @@ class ApplicationTest extends WebTestCase
         return $app;
     }
 
+    /**
+     * @expectedException Exception
+     */
     public function testShouldReturn404WhenICallHomeRoot()
     {
         $client = $this->createClient();
