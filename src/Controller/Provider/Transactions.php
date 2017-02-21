@@ -11,6 +11,7 @@ class Transactions implements ControllerProviderInterface
     {
         $home = $app['controllers_factory'];
         $home->post('/', 'Themis\\Controller\\TransactionsController::doPostTransactions');
+        $home->get('/{transactionId}', 'Themis\\Controller\\TransactionsController::doGetTransactions');
         return $home;
     }
 }

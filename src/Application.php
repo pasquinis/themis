@@ -15,7 +15,7 @@ class Application extends \Silex\Application
         $this->register(new DoctrineServiceProvider(), [
             'db.options' => [
                 'driver'   => 'pdo_sqlite',
-                'path'     => __DIR__.'/app.db',
+                'path'     => __DIR__.'/../app.db',// TODO decide the location of app.db
             ],
         ]);
 
