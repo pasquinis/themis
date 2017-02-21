@@ -13,6 +13,7 @@ RUN apk update && \
         'php5-zlib=5.6.30-r0' \
         'php5-dom=5.6.30-r0' \
         'php5-sqlite3=5.6.30-r0' \
+        'php5-pdo_sqlite=5.6.30-r0' \
         'php5-phar=5.6.30-r0' && \
     rm -rf /var/cache/apk/*
 
