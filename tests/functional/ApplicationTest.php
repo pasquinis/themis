@@ -12,43 +12,7 @@ class ApplicationTest extends WebTestCase
     public function setUp()
     {
         parent::setUp();
-        $transactions = new Table('transactions');
-        $transactions->addColumn(
-            'id',
-            'integer',
-            ['unsigned' => true, 'autoincrement' => true]
-        );
-        $transactions->addColumn(
-            'operationdate',
-            'text'
-        );
-        $transactions->addColumn(
-            'valuedate',
-            'text'
-        );
-        $transactions->addColumn(
-            'description',
-            'text'
-        );
-        $transactions->addColumn(
-            'reason',
-            'text'
-        );
-        $transactions->addColumn(
-            'revenue',
-            'integer'
-        );
-        $transactions->addColumn(
-            'expenditure',
-            'integer'
-        );
-        $transactions->addColumn(
-            'currency',
-            'text'
-        );
-        $transactions->setPrimaryKey(['id']);
-        $schema = $this->app['db']->getSchemaManager();
-        $schema->createTable($transactions);
+        $this->dbSetup();
     }
 
     public function createApplication()
@@ -119,6 +83,47 @@ class ApplicationTest extends WebTestCase
         );
         $this->assertIsJsonResponse($client->getResponse());
         $this->assertEquals($expectedResponse, $client->getResponse()->getContent());
+    }
+
+    private function dbSetup()
+    {
+        $transactions = new Table('transactions');
+        $transactions->addColumn(
+            'id',
+            'integer',
+            ['unsigned' => true, 'autoincrement' => true]
+        );
+        $transactions->addColumn(
+            'operationdate',
+            'text'
+        );
+        $transactions->addColumn(
+            'valuedate',
+            'text'
+        );
+        $transactions->addColumn(
+            'description',
+            'text'
+        );
+        $transactions->addColumn(
+            'reason',
+            'text'
+        );
+        $transactions->addColumn(
+            'revenue',
+            'integer'
+        );
+        $transactions->addColumn(
+            'expenditure',
+            'integer'
+        );
+        $transactions->addColumn(
+            'currency',
+            'text'
+        );
+        $transactions->setPrimaryKey(['id']);
+        $schema = $this->app['db']->getSchemaManager();
+        $schema->createTable($transactions);
     }
 
     private function assertIsJsonResponse($response)
