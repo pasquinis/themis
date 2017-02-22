@@ -8,9 +8,13 @@ use Themis\Application;
 
 class TransactionsController
 {
-    public function doPostTransactions(Request $request)
+    public function doPostTransactions(Request $request, Application $application)
     {
-        //$request->request->all();
+        $application['db']->insert(
+            'transactions',
+            $request->request->all()
+        );
+
         $response = new Response();
         $response->headers->set('Location', 'http://localhost');
         $response->setStatusCode(Response::HTTP_CREATED);
