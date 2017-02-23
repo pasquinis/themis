@@ -45,7 +45,7 @@ class ApplicationTest extends WebTestCase
         $this->assertEquals('Hello simone', $client->getResponse()->getContent());
     }
 
-    public function testShouldCreateATransactions()
+    public function testShouldCreateANewTransactions()
     {
         $client = $this->createClient();
         $postParameters = [
@@ -59,9 +59,38 @@ class ApplicationTest extends WebTestCase
         ];
         $client->request('POST', '/transactions/', $postParameters);
         $this->assertEquals(201, $client->getResponse()->getStatusCode());
-        $this->assertEquals('http://localhost', $client->getResponse()->headers->get('Location'));
+        $this->assertEquals('http://localhost/transactions/1', $client->getResponse()->headers->get('Location'));
     }
 
+    public function testTheIdempotencyOfATransactionCreation()
+    {
+        $client = $this->createClient();
+        $postParameters = [
+            'operationDate' => '09/02/2017',
+            'valueDate' => '09/02/2017',
+            'description' => 'PAGAMENTO TRAMITE POS',
+            'reason' => 'POS CARTA 124567 DEL 09/02/2017 ORE 13:44 C/O 1234567890 PINCO PALLO',
+            'revenue' => 0,
+            'expenditure' => -18.11,
+            'currency' => 'EUR',
+        ];
+        $client->request('POST', '/transactions/', $postParameters);
+        $this->assertEquals(201, $client->getResponse()->getStatusCode());
+        $this->assertEquals('http://localhost/transactions/1', $client->getResponse()->headers->get('Location'));
+        $postParameters = [
+            'operationDate' => '09/02/2017',
+            'valueDate' => '09/02/2017',
+            'description' => 'PAGAMENTO TRAMITE POS',
+            'reason' => 'POS CARTA 124567 DEL 09/02/2017 ORE 13:44 C/O 1234567890 PINCO PALLO',
+            'revenue' => 0,
+            'expenditure' => -18.11,
+            'currency' => 'EUR',
+        ];
+        $client = $this->createClient();
+        $client->request('POST', '/transactions/', $postParameters);
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $this->assertEquals('http://localhost/transactions/1', $client->getResponse()->headers->get('Location'));
+    }
     public function testShouldReadASelectedTransaction()
     {
         $values = [
