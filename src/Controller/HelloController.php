@@ -2,10 +2,15 @@
 
 namespace Themis\Controller;
 
+use Themis\Application;
+
 class HelloController
 {
-    public function show($name)
+    public function show($name, Application $application)
     {
-        return "Hello {$name}";
+        // return "Hello I am {$name}";
+        return $application['twig']->render('hello.twig', array(
+            'name' => $name,
+        ));
     }
 }
