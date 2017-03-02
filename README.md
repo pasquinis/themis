@@ -15,13 +15,19 @@ mkdir -p app/config \
 
 ## Docker
 
-
 ### Build the Phpunit container
 
 execute this
 
 ```bash
-docker build --file DockerfilePhpunit -t pasquinis/phpunit:5.7 .
+$ docker build --file DockerfilePhpunit -t pasquinis/phpunit:5.7 .
+```
+### Run tests
+
+for execute the tests runs:
+```bash
+/themis $ composer install
+/themis $ phpunit
 ```
 
 ### Start the container
