@@ -15,6 +15,15 @@ mkdir -p app/config \
 
 ## Docker
 
+
+### Build the Phpunit container
+
+execute this
+
+```bash
+docker build --file DockerfilePhpunit -t pasquinis/phpunit:5.7 .
+```
+
 ### Start the container
 
 with:
@@ -22,7 +31,7 @@ with:
 - expose external port 9000 with container port 8080
 
 ```bash
-$ docker run -it -u 1000:1000 -v $(pwd):/themis:rw -p 9000:8080 pasquinis/phpunit:5.7 sh
+$ docker run -it -u 1000:1000 -v $(pwd):/themis:rw pasquinis/phpunit:5.7 sh
 ```
 
 ### Create SQLite schema
@@ -35,8 +44,8 @@ for the first setup execute inside the container
 
 ### Run the PHP Server
 
-inside the container
+use the docker-compose web service
 
 ```bash
-$ php -S 0.0.0.0:8080 -t /themis/public/ /themis/public/index.php
+$ docker-compose up web
 ```

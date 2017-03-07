@@ -17,6 +17,10 @@ RUN apk update && \
         'php5-phar=5.6.30-r0' && \
     rm -rf /var/cache/apk/*
 
+RUN wget https://phar.phpunit.de/phpunit-5.7.phar && \
+    chmod +x phpunit-5.7.phar && \
+    mv phpunit-5.7.phar /usr/local/bin/phpunit
+
 RUN wget https://getcomposer.org/installer && \
     php installer --install-dir=bin --filename=composer && \
     rm installer
@@ -24,9 +28,3 @@ RUN wget https://getcomposer.org/installer && \
 RUN sed -i "s/;date.timezone =.*/date.timezone = UTC/" /etc/php5/php.ini
 RUN sed -i "s/log_errors =.*/log_errors = On/" /etc/php5/php.ini
 RUN sed -i "s/;error_log = php_errors.log/error_log = \/var\/log\/php.log/" /etc/php5/php.ini
-
-ADD . /themis
-WORKDIR /themis
-
-RUN composer install
-CMD ["php", "-S", "0.0.0.0:8080", "-t", "/themis/public", "/themis/public/index.php"]
