@@ -42,7 +42,7 @@ class ApplicationTest extends WebTestCase
         $client = $this->createClient();
         $client->request('GET', '/hello/simone/');
         $this->assertTrue($client->getResponse()->isSuccessful());
-        $this->assertEquals('Hello simone', $client->getResponse()->getContent());
+        $this->assertContains('Hello simone', $client->getResponse()->getContent());
     }
 
     public function testShouldCreateANewTransactions()
