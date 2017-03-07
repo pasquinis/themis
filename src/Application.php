@@ -3,7 +3,7 @@
 namespace Themis;
 
 use Themis\Controller\Provider\Hello;
-use Themis\Controller\Provider\Transactions;
+use Themis\Controller\Provider\Api\Transactions;
 use \Silex\Provider\DoctrineServiceProvider;
 use \Silex\Provider\TwigServiceProvider;
 

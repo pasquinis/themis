@@ -62,6 +62,25 @@ class ApplicationTest extends WebTestCase
         $this->assertEquals('http://localhost/api/transactions/1', $client->getResponse()->headers->get('Location'));
     }
 
+    public function testShouldPreviewASingleTransaction()
+    {
+        $this->markTestIncomplete();
+        $client = $this->createClient();
+        $postParameters = [
+            'operationDate' => '09/02/2017',
+            'valueDate' => '09/02/2017',
+            'description' => 'PAGAMENTO TRAMITE POS',
+            'reason' => 'POS CARTA 124567 DEL 09/02/2017 ORE 13:44 C/O 1234567890 PINCO PALLO',
+            'revenue' => 0,
+            'expenditure' => -18.11,
+            'currency' => 'EUR',
+        ];
+        $client->request('POST', '/api/transactions/', $postParameters);
+        $client = $this->createClient();
+        $client->request('GET', '/transactions/1');
+        $this->assertContains('PAGAMENTO', $client->getResponse()->getContent());
+    }
+
     public function testTheIdempotencyOfATransactionCreation()
     {
         $client = $this->createClient();

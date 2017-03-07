@@ -6,7 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Themis\Application;
 
-class TransactionsController
+class ApiTransactionsController
 {
     public function doPostTransactions(Request $request, Application $application)
     {
