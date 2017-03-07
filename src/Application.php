@@ -24,6 +24,6 @@ class Application extends \Silex\Application
         ]);
 
         $this->mount('/hello/{name}', new Hello());
-        $this->mount('/transactions', new Transactions());
+        $this->mount('/api/transactions', new Transactions());
     }
 }

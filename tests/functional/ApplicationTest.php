@@ -57,9 +57,9 @@ class ApplicationTest extends WebTestCase
             'expenditure' => -18.11,
             'currency' => 'EUR',
         ];
-        $client->request('POST', '/transactions/', $postParameters);
+        $client->request('POST', '/api/transactions/', $postParameters);
         $this->assertEquals(201, $client->getResponse()->getStatusCode());
-        $this->assertEquals('http://localhost/transactions/1', $client->getResponse()->headers->get('Location'));
+        $this->assertEquals('http://localhost/api/transactions/1', $client->getResponse()->headers->get('Location'));
     }
 
     public function testTheIdempotencyOfATransactionCreation()
@@ -74,9 +74,9 @@ class ApplicationTest extends WebTestCase
             'expenditure' => -18.11,
             'currency' => 'EUR',
         ];
-        $client->request('POST', '/transactions/', $postParameters);
+        $client->request('POST', '/api/transactions/', $postParameters);
         $this->assertEquals(201, $client->getResponse()->getStatusCode());
-        $this->assertEquals('http://localhost/transactions/1', $client->getResponse()->headers->get('Location'));
+        $this->assertEquals('http://localhost/api/transactions/1', $client->getResponse()->headers->get('Location'));
         $postParameters = [
             'operationDate' => '09/02/2017',
             'valueDate' => '09/02/2017',
@@ -87,9 +87,9 @@ class ApplicationTest extends WebTestCase
             'currency' => 'EUR',
         ];
         $client = $this->createClient();
-        $client->request('POST', '/transactions/', $postParameters);
+        $client->request('POST', '/api/transactions/', $postParameters);
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
-        $this->assertEquals('http://localhost/transactions/1', $client->getResponse()->headers->get('Location'));
+        $this->assertEquals('http://localhost/api/transactions/1', $client->getResponse()->headers->get('Location'));
     }
 
     public function testShouldCreateTwoTransactions()
@@ -104,9 +104,9 @@ class ApplicationTest extends WebTestCase
             'expenditure' => -18.11,
             'currency' => 'EUR',
         ];
-        $client->request('POST', '/transactions/', $postParameters);
+        $client->request('POST', '/api/transactions/', $postParameters);
         $this->assertEquals(201, $client->getResponse()->getStatusCode());
-        $this->assertEquals('http://localhost/transactions/1', $client->getResponse()->headers->get('Location'));
+        $this->assertEquals('http://localhost/api/transactions/1', $client->getResponse()->headers->get('Location'));
         $postParameters = [
             'operationDate' => '10/02/2017',
             'valueDate' => '10/02/2017',
@@ -117,9 +117,9 @@ class ApplicationTest extends WebTestCase
             'currency' => 'EUR',
         ];
         $client = $this->createClient();
-        $client->request('POST', '/transactions/', $postParameters);
+        $client->request('POST', '/api/transactions/', $postParameters);
         $this->assertEquals(201, $client->getResponse()->getStatusCode());
-        $this->assertEquals('http://localhost/transactions/2', $client->getResponse()->headers->get('Location'));
+        $this->assertEquals('http://localhost/api/transactions/2', $client->getResponse()->headers->get('Location'));
     }
 
     public function testShouldReadASelectedTransaction()
@@ -136,7 +136,7 @@ class ApplicationTest extends WebTestCase
         $this->app['db']->insert('transactions', $values);
 
         $client = $this->createClient();
-        $client->request('GET', '/transactions/1');
+        $client->request('GET', '/api/transactions/1');
 
         $expectedResponse = json_encode(
            ['id' => '1'] + $values

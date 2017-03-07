@@ -49,7 +49,7 @@ class TransactionsController
 
     private function createLocation(Request $request, Application $application, array $payload)
     {
-        return 'http://' . $request->getHost() . '/transactions/' . $this->getTransactionId($payload, $application);
+        return 'http://' . $request->getHost() . '/api/transactions/' . $this->getTransactionId($payload, $application);
     }
 
     private function isAlreadySavedTheTransaction(array $payload, Application $application)
