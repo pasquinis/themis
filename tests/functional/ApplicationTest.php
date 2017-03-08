@@ -64,7 +64,6 @@ class ApplicationTest extends WebTestCase
 
     public function testShouldPreviewASingleTransaction()
     {
-        $this->markTestIncomplete();
         $client = $this->createClient();
         $postParameters = [
             'operationDate' => '09/02/2017',
