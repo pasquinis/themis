@@ -39,7 +39,6 @@ class ApiTransactionsController
     {
         $sql = 'SELECT * FROM transactions WHERE id = ?';
         $transaction = $application['db']->fetchAssoc($sql, [(int) $transactionId]);
-
         $response = new Response();
         $response->setStatusCode(Response::HTTP_OK);
         $response->headers->set('Content-Type', 'application/json');
@@ -56,7 +55,8 @@ class ApiTransactionsController
         }
 
         $payload = $request->request->all();
-        if ($payload['underscore']) {
+        $underscore = $payload['underscore'];
+        if ($underscore) {
             $application['db']->insert(
                 'underscore',
                 [

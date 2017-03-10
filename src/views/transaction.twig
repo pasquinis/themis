@@ -9,11 +9,10 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 </head>
 <body>
-       
     <table class="table table-hover">
         <thead>
             <tr>
-                <th>Action</th>
+                <th>#</th>
                 <th>Operation Date</th>
                 <th>Value Date</th>
                 <th>Description</th>
@@ -23,22 +22,33 @@
             </tr>
         </thead>
         <tbody>
-                <tr>
-                <td>
-                <form>
-                <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-thumbs-up"></span></button>
-                </form>
-                </td>
-                    <td>{{ transaction.operationdate }}</td>
-                    <td>{{ transaction.valuedate }}</td>
-                    <td>{{ transaction.description }}</td>
-                    <td>{{ transaction.reason }}</td>
-                    <td>{{ transaction.revenue }}</td>
-                    <td>{{ transaction.expenditure }}</td>
-                </tr>
+            <tr>
+                <td><button class="{{ class }}" value="{{ underscore }}">{{ transaction.id}}</button></td>
+                <td>{{ transaction.operationdate }}</td>
+                <td>{{ transaction.valuedate }}</td>
+                <td>{{ transaction.description }}</td>
+                <td>{{ transaction.reason }}</td>
+                <td>{{ transaction.revenue }}</td>
+                <td>{{ transaction.expenditure }}</td>
+            </tr>
         </tbody>
     </table>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script>
+    $( ".btn" ).click(function( event ) {
+        var id = $(this).text();
+        var value = $(this).attr("value");
+                console.log(value)
+        $.ajax({
+            method: "PUT",
+            url: `/api/transactions/${id}`,
+            data: { underscore: value }
+        })
+            .done(function( html ) {
+                location.reload();
+            });
+    });
+    </script>
 </body>
 </html>
