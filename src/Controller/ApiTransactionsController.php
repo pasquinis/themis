@@ -5,8 +5,9 @@ namespace Themis\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Themis\Application;
+use \DateTime;
 
-class TransactionsController
+class ApiTransactionsController
 {
     public function doPostTransactions(Request $request, Application $application)
     {
@@ -34,17 +35,49 @@ class TransactionsController
         return $response;
     }
 
-
     public function doGetTransactions($transactionId, Request $request, Application $application)
     {
         $sql = 'SELECT * FROM transactions WHERE id = ?';
         $transaction = $application['db']->fetchAssoc($sql, [(int) $transactionId]);
-
         $response = new Response();
         $response->setStatusCode(Response::HTTP_OK);
         $response->headers->set('Content-Type', 'application/json');
         $response->setContent(json_encode($transaction));
         return $response;
+    }
+
+    public function doPutTransactions($transactionId, Request $request, Application $application)
+    {
+        if (!$this->existTheTransaction($transactionId, $application)) {
+            $response = new Response();
+            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
+            return $response;
+        }
+
+        $payload = $request->request->all();
+        $underscore = $payload['underscore'];
+        if ($underscore) {
+            $application['db']->insert(
+                'underscore',
+                [
+                    'id' => $transactionId,
+                    'created' => (new DateTime('now'))->format(DateTime::ISO8601)
+                ]
+            );
+            $response = new Response();
+            $response->setStatusCode(Response::HTTP_OK);
+            return $response;
+        } else {
+            $application['db']->delete(
+                'underscore',
+                [
+                    'id' => $transactionId
+                ]
+            );
+            $response = new Response();
+            $response->setStatusCode(Response::HTTP_OK);
+            return $response;
+        }
     }
 
     private function createLocation(Request $request, Application $application, array $payload)
@@ -57,6 +90,11 @@ class TransactionsController
         return !empty($this->transactionWith($payload, $application));
     }
 
+    private function existTheTransaction($transactionId, Application $application)
+    {
+        return !empty($this->transactionById($transactionId, $application));
+    }
+
     private function getTransactionId(array $payload, Application $application)
     {
         $obj = $this->transactionWith($payload, $application);
@@ -67,5 +105,11 @@ class TransactionsController
     {
         $sql = 'SELECT * FROM transactions WHERE description = ? AND reason = ?';
         return $application['db']->fetchAssoc($sql, [$payload['description'], $payload['reason']]);
+    }
+
+    private function transactionById($transactionId, Application $application)
+    {
+        $sql = 'SELECT * FROM transactions WHERE id = ?';
+        return $application['db']->fetchAssoc($sql, [$transactionId]);
     }
 }

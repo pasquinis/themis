@@ -1,6 +1,6 @@
 <?php
 
-namespace Themis\Controller\Provider;
+namespace Themis\Controller\Provider\View;
 
 use Silex\Api\ControllerProviderInterface;
 use Silex\Application;
@@ -10,8 +10,7 @@ class Transactions implements ControllerProviderInterface
     public function connect(Application $app)
     {
         $home = $app['controllers_factory'];
-        $home->post('/', 'Themis\\Controller\\TransactionsController::doPostTransactions');
-        $home->get('/{transactionId}', 'Themis\\Controller\\TransactionsController::doGetTransactions');
+        $home->get('/{transactionId}', 'Themis\\Controller\\ViewTransactionsController::doGetTransactions');
         return $home;
     }
 }

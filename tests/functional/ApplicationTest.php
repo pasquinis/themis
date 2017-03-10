@@ -62,6 +62,24 @@ class ApplicationTest extends WebTestCase
         $this->assertEquals('http://localhost/api/transactions/1', $client->getResponse()->headers->get('Location'));
     }
 
+    public function testShouldPreviewASingleTransaction()
+    {
+        $client = $this->createClient();
+        $postParameters = [
+            'operationDate' => '09/02/2017',
+            'valueDate' => '09/02/2017',
+            'description' => 'PAGAMENTO TRAMITE POS',
+            'reason' => 'POS CARTA 124567 DEL 09/02/2017 ORE 13:44 C/O 1234567890 PINCO PALLO',
+            'revenue' => 0,
+            'expenditure' => -18.11,
+            'currency' => 'EUR',
+        ];
+        $client->request('POST', '/api/transactions/', $postParameters);
+        $client = $this->createClient();
+        $client->request('GET', '/transactions/1');
+        $this->assertContains('PAGAMENTO', $client->getResponse()->getContent());
+    }
+
     public function testTheIdempotencyOfATransactionCreation()
     {
         $client = $this->createClient();
@@ -145,6 +163,68 @@ class ApplicationTest extends WebTestCase
         $this->assertEquals($expectedResponse, $client->getResponse()->getContent());
     }
 
+    public function testShouldUnderscoreASelectedTransaction()
+    {
+        $client = $this->createClient();
+        $postParameters = [
+            'operationDate' => '09/02/2017',
+            'valueDate' => '09/02/2017',
+            'description' => 'PAGAMENTO TRAMITE POS',
+            'reason' => 'POS CARTA 124567 DEL 09/02/2017 ORE 13:44 C/O 1234567890 PINCO PALLO',
+            'revenue' => 0,
+            'expenditure' => -18.11,
+            'currency' => 'EUR',
+        ];
+        $client->request('POST', '/api/transactions/', $postParameters);
+        $client = $this->createClient();
+        $putParameters = ['underscore' => true];
+        $client->request('PUT', '/api/transactions/1', $putParameters);
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $this->assertTupleEquals(1);
+    }
+
+    public function testShouldReceiveBadRequestWhenIUnderscoreAnInexistentTransaction()
+    {
+        $client = $this->createClient();
+        $putParameters = ['underscore' => false];
+        $client->request('PUT', '/api/transactions/1', $putParameters);
+        $this->assertEquals(400, $client->getResponse()->getStatusCode());
+        $this->assertTupleEquals(0);
+    }
+
+    public function testShouldUnderscoreAndRemoveUnderscoreFromSelectedTransaction()
+    {
+        $client = $this->createClient();
+        $postParameters = [
+            'operationDate' => '09/02/2017',
+            'valueDate' => '09/02/2017',
+            'description' => 'PAGAMENTO TRAMITE POS',
+            'reason' => 'POS CARTA 124567 DEL 09/02/2017 ORE 13:44 C/O 1234567890 PINCO PALLO',
+            'revenue' => 0,
+            'expenditure' => -18.11,
+            'currency' => 'EUR',
+        ];
+        $client->request('POST', '/api/transactions/', $postParameters);
+        $client = $this->createClient();
+        $putParameters = ['underscore' => true];
+        $client->request('PUT', '/api/transactions/1', $putParameters);
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $this->assertTupleEquals(1);
+        $putParameters = ['underscore' => false];
+        $client->request('PUT', '/api/transactions/1', $putParameters);
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $this->assertTupleEquals(0);
+    }
+
+    private function assertTupleEquals($expected)
+    {
+        $sql = 'SELECT * FROM underscore';
+        $actual = count($this->app['db']->fetchAll($sql));
+        if ( $actual != $expected) {
+            $this->fail("Found {$actual} elements but was expected {$expected}");
+        }
+    }
+
     private function dbSetup()
     {
         $transactions = new Table('transactions');
@@ -182,8 +262,20 @@ class ApplicationTest extends WebTestCase
             'text'
         );
         $transactions->setPrimaryKey(['id']);
+
+        $underscore = new Table('underscore');
+        $underscore->addColumn(
+            'id',
+            'integer'
+        );
+        $underscore->addColumn(
+            'created',
+            'text'
+        );
+
         $schema = $this->app['db']->getSchemaManager();
         $schema->createTable($transactions);
+        $schema->createTable($underscore);
     }
 
     private function assertIsJsonResponse($response)
