@@ -11,7 +11,7 @@ class ApiTransactionsController
 {
     public function doPostTransactions(Request $request, Application $application)
     {
-        $payload = $request->request->all();
+        $payload = $this->forgePayload($request->request->all());
 
         if ($this->isAlreadySavedTheTransaction($payload, $application)) {
             $response = new Response();
@@ -33,6 +33,36 @@ class ApiTransactionsController
         $response->headers->set('Location', $location);
         $response->setStatusCode(Response::HTTP_CREATED);
         return $response;
+    }
+
+    private function forgePayload(array $payload)
+    {
+        $forging = function ($date) {
+            $dateSplitted = explode('/', $date);
+            return "{$dateSplitted[2]}-{$dateSplitted[1]}-{$dateSplitted[0]}";
+        };
+
+        if (isset($payload['data'])) {
+            var_dump($payload['data']);
+            $parsed = str_getcsv($payload['data']);
+            var_dump($parsed);
+            $forged = [
+                'operationDate' => $parsed[0],
+                'valueDate' => $parsed[1],
+                'description' => $parsed[2],
+                'reason' => $parsed[3],
+                'revenue' => $parsed[4],
+                'expenditure' => $parsed[5],
+                'currency' => $parsed[6],
+            ];
+        } else {
+
+            $forged = $payload;
+            $forged['operationDate'] = $forging($payload['operationDate']);
+            $forged['valueDate'] = $forging($payload['valueDate']);
+        }
+
+        return $forged;
     }
 
     public function doGetTransactions($transactionId, Request $request, Application $application)

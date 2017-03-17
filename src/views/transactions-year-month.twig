@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Transactions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Optional Bootstrap theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+</head>
+<body>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Operation Date</th>
+                <th>Value Date</th>
+                <th>Description</th>
+                <th>Reason</th>
+                <th>Revenue</th>
+                <th>Expenditure</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in transactions %}
+            <tr>
+                <td><button class="{{ item.class }}" value="{{ item.underscore }}">{{ item.transaction.id}}</button></td>
+                <td>{{ item.transaction.operationdate }}</td>
+                <td>{{ item.transaction.valuedate }}</td>
+                <td>{{ item.transaction.description }}</td>
+                <td>{{ item.transaction.reason }}</td>
+                <td>{{ item.transaction.revenue }}</td>
+                <td>{{ item.transaction.expenditure }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script>
+    $( ".btn" ).click(function( event ) {
+        var id = $(this).text();
+        var value = $(this).attr("value");
+                console.log(value)
+        $.ajax({
+            method: "PUT",
+            url: `/api/transactions/${id}`,
+            data: { underscore: value }
+        })
+            .done(function( html ) {
+                location.reload();
+            });
+    });
+    </script>
+</body>
+</html>
