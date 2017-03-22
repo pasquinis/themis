@@ -62,6 +62,31 @@ class ApplicationTest extends WebTestCase
         $this->assertEquals('http://localhost/api/transactions/1', $client->getResponse()->headers->get('Location'));
     }
 
+    public function testShouldCreateANewTransactionsWithCSVPayload()
+    {
+        $client = $this->createClient();
+        $csvPayload = '28/02/2017,28/02/2017,PAGAMENTO UTENZE,"SDD A : ILLUMIA SPA FATTURA NUM. 48466/G DEL 08/02/2017, SCADENZA IL 28/02/201 7 ADDEBITO SDD NUMERO 1234567",,-123.80,EUR';
+        $postParameters = [
+            'data' => $csvPayload
+        ];
+        $client->request('POST', '/api/transactions/', $postParameters);
+        $this->assertEquals(201, $client->getResponse()->getStatusCode());
+        $this->assertEquals('http://localhost/api/transactions/1', $client->getResponse()->headers->get('Location'));
+    }
+
+//02/02/2017,01/02/2017,PAGAMENTO TRAMITE POS,POS CARTA 03055510 DEL 01/02/17 ORE 13.41 C/O 321868700233 ACQUA E SAPONE - MILANO NF,,-14.09,EUR
+
+    public function testShouldCreateANewTransactionsWithCSVPayloadWithoutDoubleQuote()
+    {
+        $client = $this->createClient();
+        $csvPayload = '02/02/2017,01/02/2017,PAGAMENTO TRAMITE POS,POS CARTA 03055510 DEL 01/02/17 ORE 13.41 C/O 321868700233 ACQUA E SAPONE - MILANO NF,,-14.09,EUR';
+        $postParameters = [
+            'data' => $csvPayload
+        ];
+        $client->request('POST', '/api/transactions/', $postParameters);
+        $this->assertEquals(201, $client->getResponse()->getStatusCode());
+        $this->assertEquals('http://localhost/api/transactions/1', $client->getResponse()->headers->get('Location'));
+    }
     public function testShouldPreviewASingleTransaction()
     {
         $client = $this->createClient();
@@ -138,6 +163,41 @@ class ApplicationTest extends WebTestCase
         $client->request('POST', '/api/transactions/', $postParameters);
         $this->assertEquals(201, $client->getResponse()->getStatusCode());
         $this->assertEquals('http://localhost/api/transactions/2', $client->getResponse()->headers->get('Location'));
+    }
+
+    public function testShouldPreviewATransactionsForASpecificMonth()
+    {
+        $client = $this->createClient();
+        $postParameters = [
+            'operationDate' => '09/02/2017',
+            'valueDate' => '09/02/2017',
+            'description' => 'PAGAMENTO TRAMITE POS',
+            'reason' => 'POS CARTA 124567 DEL 09/02/2017 ORE 13:44 C/O 1234567890 PINCO PALLO',
+            'revenue' => 0,
+            'expenditure' => -18.11,
+            'currency' => 'EUR',
+        ];
+        $client->request('POST', '/api/transactions/', $postParameters);
+        $postParameters = [
+            'operationDate' => '10/02/2017',
+            'valueDate' => '10/02/2017',
+            'description' => 'PAGAMENTO TRAMITE POS',
+            'reason' => 'POS CARTA 124567 DEL 10/02/2017 ORE 23:00 C/O 1234567890 PINCO PALLO',
+            'revenue' => 0,
+            'expenditure' => -8.11,
+            'currency' => 'EUR',
+        ];
+        $client->request('POST', '/api/transactions/', $postParameters);
+        $client = $this->createClient();
+        $client->request('GET', '/transactions/2017/02');
+        $this->assertContains(
+            'POS CARTA 124567 DEL 09/02/2017 ORE 13:44 C/O 1234567890 PINCO PALLO',
+            $client->getResponse()->getContent()
+        );
+        $this->assertContains(
+            'POS CARTA 124567 DEL 10/02/2017 ORE 23:00 C/O 1234567890 PINCO PALLO',
+            $client->getResponse()->getContent()
+        );
     }
 
     public function testShouldReadASelectedTransaction()

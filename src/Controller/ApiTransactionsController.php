@@ -11,7 +11,7 @@ class ApiTransactionsController
 {
     public function doPostTransactions(Request $request, Application $application)
     {
-        $payload = $request->request->all();
+        $payload = $this->forgePayload($request->request->all());
 
         if ($this->isAlreadySavedTheTransaction($payload, $application)) {
             $response = new Response();
@@ -33,6 +33,34 @@ class ApiTransactionsController
         $response->headers->set('Location', $location);
         $response->setStatusCode(Response::HTTP_CREATED);
         return $response;
+    }
+
+    private function forgePayload(array $payload)
+    {
+        $forging = function ($date) {
+            $dateSplitted = explode('/', $date);
+            return "{$dateSplitted[2]}-{$dateSplitted[1]}-{$dateSplitted[0]}";
+        };
+
+        if (isset($payload['data'])) {
+            $parsed = str_getcsv($payload['data']);
+            $forged = [
+                'operationDate' => $forging($parsed[0]),
+                'valueDate' => $forging($parsed[1]),
+                'description' => $parsed[2],
+                'reason' => $parsed[3],
+                'revenue' => $parsed[4],
+                'expenditure' => $parsed[5],
+                'currency' => $parsed[6],
+            ];
+        } else {
+
+            $forged = $payload;
+            $forged['operationDate'] = $forging($payload['operationDate']);
+            $forged['valueDate'] = $forging($payload['valueDate']);
+        }
+
+        return $forged;
     }
 
     public function doGetTransactions($transactionId, Request $request, Application $application)
@@ -103,8 +131,16 @@ class ApiTransactionsController
 
     private function transactionWith(array $payload, Application $application)
     {
-        $sql = 'SELECT * FROM transactions WHERE description = ? AND reason = ?';
-        return $application['db']->fetchAssoc($sql, [$payload['description'], $payload['reason']]);
+        $sql = 'SELECT * FROM transactions WHERE description = ? AND reason = ? AND operationdate = ?';
+        return $application['db']
+            ->fetchAssoc(
+                $sql,
+                [
+                    $payload['description'],
+                    $payload['reason'],
+                    $payload['operationDate']
+                ]
+        );
     }
 
     private function transactionById($transactionId, Application $application)

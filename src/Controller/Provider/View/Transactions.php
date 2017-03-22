@@ -10,7 +10,14 @@ class Transactions implements ControllerProviderInterface
     public function connect(Application $app)
     {
         $home = $app['controllers_factory'];
-        $home->get('/{transactionId}', 'Themis\\Controller\\ViewTransactionsController::doGetTransactions');
+        $home->get(
+            '/{transactionId}',
+            'Themis\\Controller\\ViewTransactionsController::doGetTransactions'
+        );
+        $home->get(
+            '/{year}/{month}',
+            'Themis\\Controller\\ViewTransactionsController::doGetTransactionsByYearMonth'
+        );
         return $home;
     }
 }
