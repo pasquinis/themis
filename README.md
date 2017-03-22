@@ -1,6 +1,5 @@
 # Skeleton
 
-
 ## Create the scaffold
 
 ```bash
@@ -11,6 +10,19 @@ mkdir -p app/config \
   src/Themis \
   public
 
+```
+## Import the CSV
+
+In your environment you need to have bash and curl.
+In order to import the CSV execute:
+
+```bash
+$ bash app/loader.sh ~/Documents/01-ListaMovimenti.csv
+.......................................................................................................................................................
+Total POST executed: 151
+ - with response 201: 151
+ - with response 200: 0
+ - with response WARNING: 0
 ```
 
 ## Docker
