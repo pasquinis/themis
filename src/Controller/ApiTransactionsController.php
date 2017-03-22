@@ -43,12 +43,10 @@ class ApiTransactionsController
         };
 
         if (isset($payload['data'])) {
-            var_dump($payload['data']);
             $parsed = str_getcsv($payload['data']);
-            var_dump($parsed);
             $forged = [
-                'operationDate' => $parsed[0],
-                'valueDate' => $parsed[1],
+                'operationDate' => $forging($parsed[0]),
+                'valueDate' => $forging($parsed[1]),
                 'description' => $parsed[2],
                 'reason' => $parsed[3],
                 'revenue' => $parsed[4],
@@ -133,8 +131,16 @@ class ApiTransactionsController
 
     private function transactionWith(array $payload, Application $application)
     {
-        $sql = 'SELECT * FROM transactions WHERE description = ? AND reason = ?';
-        return $application['db']->fetchAssoc($sql, [$payload['description'], $payload['reason']]);
+        $sql = 'SELECT * FROM transactions WHERE description = ? AND reason = ? AND operationdate = ?';
+        return $application['db']
+            ->fetchAssoc(
+                $sql,
+                [
+                    $payload['description'],
+                    $payload['reason'],
+                    $payload['operationDate']
+                ]
+        );
     }
 
     private function transactionById($transactionId, Application $application)
