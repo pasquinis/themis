@@ -15,6 +15,10 @@ class Transactions implements ControllerProviderInterface
             'Themis\\Controller\\ViewTransactionsController::doGetTransactions'
         );
         $home->get(
+            '/{year}/all',
+            'Themis\\Controller\\ViewTransactionsController::doGetTransactionsByYear'
+        );
+        $home->get(
             '/{year}/{month}',
             'Themis\\Controller\\ViewTransactionsController::doGetTransactionsByYearMonth'
         );

@@ -42,6 +42,31 @@ class ViewTransactionsController
                 'transaction' => $transaction,
                 'underscore' => $underscore,
                 'class' => $this->cssClassDefinition($underscore),
+                'tablerow' => $this->cssTrDefinition($underscore),
+            ];
+        }
+
+        return $application['twig']->render('transactions-year-month.twig', array(
+            'transactions' => $toPreview,
+        ));
+    }
+
+    public function doGetTransactionsByYear($year, Request $request, Application $application)
+    {
+        $leftDate = "{$year}-01-" . self::FIRST_DAY_OF_MONTH;
+        $rightDate = "{$year}-12-" . self::LAST_DAY_OF_MONTH;
+
+        $sql = "SELECT * FROM transactions WHERE valuedate BETWEEN '{$leftDate}' AND '{$rightDate}'";
+        $transactions = $application['db']->fetchAll($sql);
+
+        $toPreview = [];
+        foreach($transactions as $transaction) {
+            $underscore = $this->toUnderscore($transaction['id'], $application);
+            $toPreview[] = [
+                'transaction' => $transaction,
+                'underscore' => $underscore,
+                'class' => $this->cssClassDefinition($underscore),
+                'tablerow' => $this->cssTrDefinition($underscore),
             ];
         }
 
@@ -59,5 +84,10 @@ class ViewTransactionsController
     private function cssClassDefinition($underscore)
     {
         return ($underscore === TRUE) ? 'btn btn-success btn-sm' : 'btn btn-info btn-sm table-active';
+    }
+
+    private function cssTrDefinition($underscore)
+    {
+        return ($underscore === TRUE) ? 'table-active' : 'none';
     }
 }

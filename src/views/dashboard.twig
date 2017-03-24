@@ -39,32 +39,20 @@
       </div>
     </div>
 
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Operation Date</th>
-                <th>Value Date</th>
-                <th>Description</th>
-                <th>Reason</th>
-                <th>Revenue</th>
-                <th>Expenditure</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in transactions %}
-            <tr class="{{ item.tablerow }}">
-                <td><button class="{{ item.class }}" value="{{ item.underscore }}">{{ item.transaction.id}}</button></td>
-                <td>{{ item.transaction.operationdate }}</td>
-                <td>{{ item.transaction.valuedate }}</td>
-                <td>{{ item.transaction.description }}</td>
-                <td>{{ item.transaction.reason }}</td>
-                <td>{{ item.transaction.revenue }}</td>
-                <td>{{ item.transaction.expenditure }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="card">
+      <div class="card-header">
+        Open transfers: {{ openTransactionsCount }} transfer open
+      </div>
+      <div class="card-block">
+        <ul class="list-group list-group-flush">
+          {% for transaction in openTransactions %}
+          <li class="list-group-item">{{ transaction.operationdate }} &emsp; {{ transaction.tot }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="card-footer text-muted">
+      </div>
+    </div>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
