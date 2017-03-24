@@ -50,6 +50,29 @@ class ViewTransactionsController
         ));
     }
 
+    public function doGetTransactionsByYear($year, Request $request, Application $application)
+    {
+        $leftDate = "{$year}-01-" . self::FIRST_DAY_OF_MONTH;
+        $rightDate = "{$year}-12-" . self::LAST_DAY_OF_MONTH;
+
+        $sql = "SELECT * FROM transactions WHERE valuedate BETWEEN '{$leftDate}' AND '{$rightDate}'";
+        $transactions = $application['db']->fetchAll($sql);
+
+        $toPreview = [];
+        foreach($transactions as $transaction) {
+            $underscore = $this->toUnderscore($transaction['id'], $application);
+            $toPreview[] = [
+                'transaction' => $transaction,
+                'underscore' => $underscore,
+                'class' => $this->cssClassDefinition($underscore),
+            ];
+        }
+
+        return $application['twig']->render('transactions-year-month.twig', array(
+            'transactions' => $toPreview,
+        ));
+    }
+
     private function toUnderscore($transactionId, Application $application)
     {
         $sql = 'SELECT * FROM underscore WHERE id = ?';
