@@ -1,7 +1,7 @@
 <?php
 namespace Themis\Projection;
 
-class CategoryExpenditureItems
+class CategoryExpenditureItems implements ExpenditureItems
 {
     const VARIABLE_COST_OTHER = 'Altro';
     const VARIABLE_COST_SONS = 'Spese/figli';
@@ -11,22 +11,20 @@ class CategoryExpenditureItems
     const CATEGORY_ACCREDITATION_FEES = 'ACCREDITO EMOLUMENTI';
 
     private $categories;
-    private $description;
-    private $reason;
 
-    public function __construct($description, $reason)
+    public function __construct()
     {
         $this->categories = [
             self::VARIABLE_COST_SONS => ['123456700088'],
         ];
-        $this->description = $description;
-        $this->reason = $reason;
     }
 
-    public function category()
+    public function category(array $transaction)
     {
-        if (self::CATEGORY_POS_PAYMENT == $this->description) {
-            $idPos = $this->idPos($this->reason);
+        $description = $transaction['description'];
+        $reason = $transaction['reason'];
+        if (self::CATEGORY_POS_PAYMENT == $description) {
+            $idPos = $this->idPos($reason);
             foreach($this->categories as $category => $listOfId) {
                 if (in_array($idPos, $listOfId)) {
                     return $category;
@@ -34,8 +32,8 @@ class CategoryExpenditureItems
             }
             return self::VARIABLE_COST_OTHER;
         }
-        if (self::CATEGORY_ACCREDITATION_FEES == $this->description) {
-            $idSalary = $this->idSalary();
+        if (self::CATEGORY_ACCREDITATION_FEES == $description) {
+            $idSalary = $this->idSalary($reason);
 
             return ('ORG:TREBI' == $idSalary) ?
                 self::VARIABLE_REVENUE_WIFE :
@@ -44,27 +42,27 @@ class CategoryExpenditureItems
         }
     }
 
-    private function idSalary()
+    private function idSalary($reason)
     {
         $matches = [];
         $pattern = '/ORD:([a-zA-Z0-9]*) /';
-        preg_match($pattern, $this->reason, $matches);
+        preg_match($pattern, $reason, $matches);
         if (!isset($matches[1])) {
             throw new CategoryExpenditureItemsException(
-                "ERROR: for {$this->reason} I can't identify SALARY Id"
+                "ERROR: for {$reason} I can't identify SALARY Id"
             );
         }
         return $matches[1];
     }
 
-    public function idPos()
+    private function idPos($reason)
     {
         $matches = [];
         $pattern = '/C\/O ([0-9]*) /';
-        preg_match($pattern, $this->reason, $matches);
+        preg_match($pattern, $reason, $matches);
         if (!isset($matches[1])) {
             throw new CategoryExpenditureItemsException(
-                "ERROR: for {$this->reason} I can't identify POS Id"
+                "ERROR: for {$reason} I can't identify POS Id"
             );
         }
         return $matches[1];
