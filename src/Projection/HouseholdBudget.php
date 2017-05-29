@@ -20,16 +20,12 @@ class HouseholdBudget
     public function handle($startDate, $endDate)
     {
         $transactions = $this->selectDataFromTransactions($startDate, $endDate);
-        //TODO eseguire projection
         $this->project($transactions);
-        //TODO salvare i dati calcolati nella tabella project
     }
-
 
     private function project($transactions)
     {
         foreach ($transactions as $transaction) {
-            //TODO ciclare chiamando la funzione che raggruppa per poi inserire nella tabella payment_
             $prepareTransaction = $this->prepareTransaction($transaction);
             $this->add($prepareTransaction);
         }
@@ -48,8 +44,8 @@ class HouseholdBudget
         $category = $this->expenditureItems->category($transaction);
 
         $transaction['category'] = $category;
-        $transaction['revenue'] = 0; //TODO fake
-        $transaction['expenditure'] = 0; //TODO fake
+        $transaction['revenue'] = $transaction['revenue'];
+        $transaction['expenditure'] = $transaction['expenditure'];
         $transaction['correlation'] = "transaction/{$id}";
         $transaction['projected_at'] = $now;
         return $transaction;

@@ -13,7 +13,7 @@ class HouseholdBudgetTest extends WebTestCase
     {
         parent::setUp();
         $this->dbSetup();
-        $this->expenditureItems = $this->createMock(ExpenditureItems::class);
+        $this->expenditureItems = new CategoryExpenditureItems();
         $this->budget = new HouseholdBudget($this->app, $this->expenditureItems);
     }
 
@@ -34,14 +34,11 @@ class HouseholdBudgetTest extends WebTestCase
         $this->prepareTransactions();
         $expected = [
             "operationdate" => "10/01/2011",
-            "category" => "1",
+            "category" => "Altro",
             "revenue" => "0",
-            "expenditure" => "0",
+            "expenditure" => "-10",
             "correlation" => "transaction/1",
         ];
-        $this->expenditureItems
-            ->method('category')
-            ->willReturn(1);
 
         $this->assertTupleEquals(0);
 
