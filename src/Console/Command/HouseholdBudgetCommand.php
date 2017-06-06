@@ -25,7 +25,7 @@ class HouseholdBudgetCommand extends Command
         ;
 
         $this->expenditureItems = new CategoryExpenditureItems();
-        $this->budget = new HouseholdBudget(new Application, $this->expenditureItems);
+        $this->budget = new HouseholdBudget(new Application(), $this->expenditureItems);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

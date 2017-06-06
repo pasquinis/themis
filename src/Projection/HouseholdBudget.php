@@ -33,7 +33,9 @@ class HouseholdBudget
 
     private function selectDataFromTransactions($startDate, $endDate)
     {
-        $sql = 'SELECT * FROM transactions';
+        $startDate = '2011-01-01';
+        $endDate = '2011-01-31';
+        $sql = "SELECT * FROM transactions WHERE valuedate BETWEEN '{$startDate}' AND '{$endDate}'";
         return $this->app['db']->fetchAll($sql);
     }
 

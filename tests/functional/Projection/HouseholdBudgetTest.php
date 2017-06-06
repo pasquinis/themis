@@ -21,19 +21,20 @@ class HouseholdBudgetTest extends WebTestCase
     {
         $app = new Application();
         $app = $this->debug($app);
-        $app->register(new DoctrineServiceProvider(), [
-            'db.options' => [
-                'driver'   => 'pdo_sqlite',
-            ],
-        ]);
+        $app->register(
+            new DoctrineServiceProvider(),
+            [ 'db.options' => [ 'driver'   => 'pdo_sqlite' ], ]
+        );
+
         return $app;
     }
 
     public function testShouldCreateOneRowWhenThereIsOnlyOneTransaction()
     {
-        $this->prepareTransactions();
+        $this->prepareTransactions($date = '2011-01-10');
+        $this->prepareTransactions($date = '2011-02-10');
         $expected = [
-            "operationdate" => "10/01/2011",
+            "operationdate" => "2011-01-10",
             "category" => "Altro",
             "revenue" => "0",
             "expenditure" => "-10",
@@ -43,8 +44,8 @@ class HouseholdBudgetTest extends WebTestCase
         $this->assertTupleEquals(0);
 
         $this->budget->handle(
-            $startDate = '01/01/2011',
-            $endDate = '31/01/2011'
+            $startDate = '2011-01-01',
+            $endDate = '2011-01-31'
         );
 
         $this->assertTupleExpect([$expected]);
@@ -76,11 +77,11 @@ SQL;
         }
     }
 
-    private function prepareTransactions()
+    private function prepareTransactions($date)
     {
         $payload = [
-            'operationDate' => '10/01/2011',
-            'valueDate' => '10/01/2011',
+            'operationDate' => $date,
+            'valueDate' => $date,
             'description' => 'PAGAMENTO TRAMITE POS',
             'reason' => 'POS CARTA 124567 DEL 10/01/2011 ORE 20:44 C/O 1234567890 PINCO PALLO',
             'revenue' => 0,
