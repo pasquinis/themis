@@ -21,6 +21,7 @@ class CategoryExpenditureItems implements ExpenditureItems
     const VARIABLE_COST_COMMISSION = 'Banca/Commissioni';
     const VARIABLE_COST_WITHDRAW_MONEY = 'Banca/Prelievo';
     const VARIABLE_COST_CASH_PAYMENT_BANK = 'Banca/Versamento';
+    const VARIABLE_COST_HOME_RENOVATION = 'Spese/Ristrutturazione';
 
     const VARIABLE_REVENUE_HUSBAND = 'Stipedio/Marito';
     const VARIABLE_REVENUE_WIFE = 'Stipedio/Moglie';
@@ -59,6 +60,7 @@ class CategoryExpenditureItems implements ExpenditureItems
     const CATEGORY_TRANSFER = 'GIROCONTO/BONIFICO';
     const CATEGORY_TRANSFER_DEBT = 'ADDEBITO ASSEGNO';
     const CATEGORY_FINANCIALS_TRANSFER = 'STORNO MOVIMENTI';
+    const CATEGORY_DIFFERENT_PAYMENT = 'PAGAMENTI DIVERSI';
 
     private $categories;
 
@@ -71,7 +73,10 @@ class CategoryExpenditureItems implements ExpenditureItems
             ],
             self::VARIABLE_COST_VIRIDEA => ['380462500013'],
             self::VARIABLE_COST_BENNET => ['342855100304'],
-            self::VARIABLE_COST_ESSELUNGA => ['301002400865'],
+            self::VARIABLE_COST_ESSELUNGA => [
+                '301002400865',
+                'ESSELUNGA'
+            ],
             self::VARIABLE_COST_ESSO => [
                 '396255400173',
                 '396255400098',
@@ -163,6 +168,9 @@ class CategoryExpenditureItems implements ExpenditureItems
         if (self::CATEGORY_FINANCIALS_TRANSFER == $description) {
             return self::VARIABLE_COST_CASH_PAYMENT_BANK;
         }
+        if (self::CATEGORY_DIFFERENT_PAYMENT == $description) {
+            return self::VARIABLE_COST_HOME_RENOVATION;
+        }
     }
 
     private function idBankTransfer($reason)
@@ -234,7 +242,7 @@ class CategoryExpenditureItems implements ExpenditureItems
     private function idPos($reason)
     {
         $matches = [];
-        $pattern = '/C\/O ([0-9]*) |(NUOVA SIDAP)|(Ricarica telefonica)|(COZZI)|(DONALD)|(PARCHEGGIO)|(FARMACIA)/';
+        $pattern = '/C\/O ([0-9]*) |(NUOVA SIDAP)|(Ricarica telefonica)|(COZZI)|(DONALD)|(PARCHEGGIO)|(FARMACIA)|(ESSELUNGA)/';
         preg_match($pattern, $reason, $matches);
         $rightMatches = $this->returnTheRightPopulatedMatches($matches);
         // var_dump(__LINE__ . $rightMatches);
