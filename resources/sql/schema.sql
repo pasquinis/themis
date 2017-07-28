@@ -18,3 +18,20 @@ CREATE TABLE underscore (
     id  INTEGER NOT NULL,
     created    TEXT NOT NULL
 );
+
+CREATE TABLE project_household_budget (
+    operationdate    TEXT NOT NULL,
+    category   TEXT NOT NULL,
+    revenue    INTEGER NOT NULL,
+    expenditure    INTEGER NOT NULL,
+    transaction TEXT NOT NULL,
+    projected_at TEXT NOT NULL
+);
+
+/* TODO fix the wrong fixtures
+INSERT INTO project_household_budget (operationdate, category, revenue, expenditure)
+VALUES
+('2011-09-17', 'cat A', 0, 12),
+('2011-09-18', 'cat A', 0, 11),
+('2011-09-18', 'cat B', 20, 0);
+*/

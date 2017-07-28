@@ -67,3 +67,12 @@ use the docker-compose web service
 ```bash
 $ docker-compose up web
 ```
+
+## Projection
+
+### Project a projection
+
+Inside the container execute:
+```bash
+/themis $ php scripts/console.php projection:household-budget 2016-03-01 2016-04-01
+```

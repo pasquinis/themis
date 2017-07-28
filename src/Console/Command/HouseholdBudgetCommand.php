@@ -33,13 +33,13 @@ class HouseholdBudgetCommand extends Command
         $from = $input->getArgument('from');
         $to = $input->getArgument('to');
 
-        $this->budget->handle(
-            $startDate = '01/01/2011', //TODO custom
-            $endDate = '31/01/2011'
+        $totalEvents = $this->budget->handle(
+            $startDate = $from,
+            $endDate = $to
         );
 
         $values = [
-            'event-streamed' => 10
+            'event-streamed' => $totalEvents
         ];
 
         $output->writeln([
