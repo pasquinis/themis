@@ -168,10 +168,10 @@ class CategoryExpenditureItems implements ExpenditureItems
         if (self::CATEGORY_POS_PAYMENT == $description) {
             $idPos = $this->idPos($reason);
             foreach($this->categories as $category => $listOfId) {
-                var_dump("idPos: " .$idPos);
+                // var_dump("idPos: " .$idPos);
                 // print_r($listOfId);
                 if (in_array($idPos, $listOfId)) {
-                    var_dump("***" . $category);
+                    // var_dump("***" . $category);
                     return $category;
                 }
             }
