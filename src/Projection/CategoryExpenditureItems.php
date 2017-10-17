@@ -6,17 +6,18 @@ class CategoryExpenditureItems implements ExpenditureItems
     const VARIABLE_COST_OTHER = 'Altro';
     const VARIABLE_COST_SONS = 'Spese/Figli';
     const VARIABLE_COST_VIRIDEA = 'Spese/Viridea';
-    const VARIABLE_COST_ESSELUNGA = 'Spese/Esselunga';
-    const VARIABLE_COST_BENNET = 'Spese/Bennet';
-    const VARIABLE_COST_ESSO = 'Spese/Esso';
+    const VARIABLE_COST_TRANSPORT = 'Spese/Trasporti';
     const VARIABLE_COST_PHARMACY = 'Spese/Farmacia';
     const VARIABLE_COST_FELTRINELLI = 'Spese/Feltrinelli';
-    const VARIABLE_COST_PITTAROSSO = 'Spese/Pittarosso';
     const VARIABLE_COST_TELEFONO = 'Spese/Telefono';
     const VARIABLE_COST_COZZI = 'Spese/Piscina';
     const VARIABLE_COST_MEDIAWORLD = 'Spese/MediaWorld';
     const VARIABLE_COST_DAMAFRUITS = 'Spese/Damafruits';
     const VARIABLE_COST_FOOD = 'Spese/Cibo';
+    const VARIABLE_COST_DRESS = 'Spese/Vestiario';
+    const VARIABLE_COST_HOME = 'Spese/Casa';
+    const VARIABLE_COST_EXTRAORDINARY = 'Spese/Straordinarie';
+    const VARIABLE_COST_WELFARE = 'Spese/Salute';
     const VARIABLE_COST_PARKING = 'Spese/Parcheggio';
     const VARIABLE_COST_COMMISSION = 'Banca/Commissioni';
     const VARIABLE_COST_WITHDRAW_MONEY = 'Banca/Prelievo';
@@ -69,27 +70,27 @@ class CategoryExpenditureItems implements ExpenditureItems
         $this->categories = [
             self::VARIABLE_COST_SONS => [
                 '123456700088',
-                '303274200088'
+                '303274200088',
+                '424802800002',
+                '476914400001',
+                '402142600004',
+                '323904700025'
             ],
             self::VARIABLE_COST_VIRIDEA => ['380462500013'],
-            self::VARIABLE_COST_BENNET => ['342855100304'],
-            self::VARIABLE_COST_ESSELUNGA => [
-                '301002400865',
-                'ESSELUNGA'
-            ],
-            self::VARIABLE_COST_ESSO => [
+            self::VARIABLE_COST_TRANSPORT => [
                 '396255400173',
                 '396255400098',
                 '396255400128',
                 '380284200001',
-                'NUOVA SIDAP'
+                'NUOVA SIDAP',
+                '336452500075',
+                '484951700001'
             ],
             self::VARIABLE_COST_PHARMACY => [
                 '413995900002',
                 'FARMACIA'
             ],
             self::VARIABLE_COST_FELTRINELLI => ['389535500006'],
-            self::VARIABLE_COST_PITTAROSSO => ['482007200252'],
             self::VARIABLE_COST_TELEFONO => ['Ricarica telefonica'],
             self::VARIABLE_COST_COZZI => [
                 '304964800017',
@@ -97,8 +98,66 @@ class CategoryExpenditureItems implements ExpenditureItems
             ],
             self::VARIABLE_COST_MEDIAWORLD => ['303222300616'],
             self::VARIABLE_COST_DAMAFRUITS => ['387823400001'],
-            self::VARIABLE_COST_FOOD => ['DONALD'],
+            self::VARIABLE_COST_FOOD => [
+                'DONALD',
+                '464796200001',
+                '436815100002',
+                '430208200004',
+                '475205600001',
+                '411242300002',
+                '346748900002',
+                '010763600001',
+                '380005400002'
+            ],
             self::VARIABLE_COST_PARKING => ['PARCHEGGIO'],
+            self::VARIABLE_COST_DRESS => [
+                '311279100007',
+                '482007200036',
+                '375226100003',
+                '465385000133'
+            ],
+            self::VARIABLE_COST_HOME => [
+                '398767900072',
+                '475680800001',
+                '321868700233',
+                '301002400865',
+                'ESSELUNGA',
+                '342855100304',
+                '373075601439',
+                '301002401350',
+                '300359400155',
+                '328863000472',
+                '444790700018'
+            ],
+            self::VARIABLE_COST_WELFARE => [
+                '354225100005',
+                '488214500014',
+                '303662200005',
+                '312135100015',
+                '397489900003',
+                '354225100004',
+                '312161200006',
+                '312144500001',
+                '326152000003'
+            ],
+            self::VARIABLE_COST_EXTRAORDINARY => [
+                '460324500001',
+                '404314900001',
+                '322865600004',
+                '326700000002',
+                '305054900002',
+                '395775300001',
+                '329560500005',
+                '040315000001',
+                '482007200252',
+                '482007200159',
+                '465385000501',
+                '398767900046',
+                '333989700801',
+                '311279100026',
+                '326904100002',
+                '310859100003'
+            ]
         ];
     }
 
@@ -109,10 +168,10 @@ class CategoryExpenditureItems implements ExpenditureItems
         if (self::CATEGORY_POS_PAYMENT == $description) {
             $idPos = $this->idPos($reason);
             foreach($this->categories as $category => $listOfId) {
-                // var_dump("idPos: " .$idPos);
+                var_dump("idPos: " .$idPos);
                 // print_r($listOfId);
                 if (in_array($idPos, $listOfId)) {
-                    // var_dump("***" . $category);
+                    var_dump("***" . $category);
                     return $category;
                 }
             }
