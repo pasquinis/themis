@@ -62,6 +62,21 @@ class ApplicationTest extends WebTestCase
         $this->assertEquals('http://localhost/api/transactions/1', $client->getResponse()->headers->get('Location'));
     }
 
+    public function testShouldCreateForBancaIntesaANewTransactionsWithCSVPayload()
+    {
+        $client = $this->createClient();
+        $csvPayload = '26/09/17,26/09/17,Stipendio o pensione,2295.00,,Cod. Disp.: 011709260g42p3 Sala Stipendio O Pensione 01nx02bc1210015064224951640.8040359 Stipendio Settembre 2017 Bonifico A Vostro Favore Disposto Da: Mitt.: DueB Or Benef.: Pinco Pallo';
+        $postParameters = [
+            'data' => $csvPayload
+        ];
+        $client->request('POST', '/api/intesa/transactions/', $postParameters);
+        $this->assertEquals(201, $client->getResponse()->getStatusCode());
+        $this->assertEquals('http://localhost/api/transactions/1', $client->getResponse()->headers->get('Location'));
+        $client = $this->createClient();
+        $client->request('GET', 'api/transactions/1');
+        $this->assertContains('Stipendio o pensione', $client->getResponse()->getContent());
+    }
+
     public function testShouldCreateANewTransactionsWithCSVPayload()
     {
         $client = $this->createClient();
@@ -283,6 +298,13 @@ class ApplicationTest extends WebTestCase
         if ( $actual != $expected) {
             $this->fail("Found {$actual} elements but was expected {$expected}");
         }
+    }
+
+    private function printTuple()
+    {
+        $sql = 'SELECT * FROM transactions';
+        $actualState = $this->app['db']->fetchAll($sql);
+        print_r($actualState);
     }
 
     private function dbSetup()

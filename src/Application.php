@@ -4,6 +4,7 @@ namespace Themis;
 
 use Themis\Controller\Provider\Hello;
 use Themis\Controller\Provider\Api\Transactions;
+use Themis\Controller\Provider\Api\TransactionsForIntesa;
 use Themis\Controller\Provider\View\Transactions as ViewTransactions;
 use Themis\Controller\Provider\View\Dashboard as ViewDashboard;
 use \Silex\Provider\DoctrineServiceProvider;
@@ -27,6 +28,7 @@ class Application extends \Silex\Application
 
         $this->mount('/hello/{name}', new Hello());
         $this->mount('/api/transactions', new Transactions());
+        $this->mount('/api/intesa/transactions', new TransactionsForIntesa());
         $this->mount('/transactions', new ViewTransactions());
         $this->mount('/dashboard', new ViewDashboard());
     }

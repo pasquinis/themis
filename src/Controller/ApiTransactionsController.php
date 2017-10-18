@@ -9,6 +9,32 @@ use \DateTime;
 
 class ApiTransactionsController
 {
+    public function doPostTransactionsForIntesa(Request $request, Application $application)
+    {
+        $payload = $this->forgePayloadForIntesa($request->request->all());
+
+        if ($this->isAlreadySavedTheTransaction($payload, $application)) {
+            $response = new Response();
+            $location = $this->createLocation($request, $application, $payload);
+            $response->headers->set('Location', $location);
+            $response->setStatusCode(Response::HTTP_OK);
+            return $response;
+        }
+
+        $application['db']->insert(
+            'transactions',
+             $payload
+        );
+
+        $transaction = $this->transactionWith($payload, $application);
+
+        $response = new Response();
+        $location = $this->createLocation($request, $application, $payload);
+        $response->headers->set('Location', $location);
+        $response->setStatusCode(Response::HTTP_CREATED);
+        return $response;
+    }
+
     public function doPostTransactions(Request $request, Application $application)
     {
         $payload = $this->forgePayload($request->request->all());
@@ -33,6 +59,26 @@ class ApiTransactionsController
         $response->headers->set('Location', $location);
         $response->setStatusCode(Response::HTTP_CREATED);
         return $response;
+    }
+
+    private function forgePayloadForIntesa(array $payload)
+    {
+        $forging = function ($date) {
+            $dateSplitted = explode('/', $date);
+            return "20{$dateSplitted[2]}-{$dateSplitted[1]}-{$dateSplitted[0]}";
+        };
+
+        $parsed = str_getcsv($payload['data']);
+        $forged = [
+            'operationDate' => $forging($parsed[0]),
+            'valueDate' => $forging($parsed[1]),
+            'description' => $parsed[2],
+            'reason' => $parsed[5],
+            'revenue' => $parsed[3],
+            'expenditure' => $parsed[4],
+            'currency' => 'EUR',
+        ];
+        return $forged;
     }
 
     private function forgePayload(array $payload)
