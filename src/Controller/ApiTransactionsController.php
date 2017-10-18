@@ -11,6 +11,12 @@ class ApiTransactionsController
 {
     public function doPostTransactionsForIntesa(Request $request, Application $application)
     {
+        if (!$this->sanityCheck($request->request->all())) {
+            $response = new Response();
+            $response->setStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+            return $response;
+        }
+
         $payload = $this->forgePayloadForIntesa($request->request->all());
 
         if ($this->isAlreadySavedTheTransaction($payload, $application)) {
@@ -152,6 +158,14 @@ class ApiTransactionsController
             $response->setStatusCode(Response::HTTP_OK);
             return $response;
         }
+    }
+
+    private function sanityCheck($payload)
+    {
+        $extracted = str_getcsv($payload['data']);
+        preg_match('#(\d.)/(\d.)/(\d.)#', $extracted[0], $matchesForFirstDate);
+        preg_match('#(\d.)/(\d.)/(\d.)#', $extracted[0], $matchesForSecondDate);
+        return count($matchesForFirstDate) == 4 && count($matchesForSecondDate) == 4;
     }
 
     private function createLocation(Request $request, Application $application, array $payload)

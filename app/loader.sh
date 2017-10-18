@@ -12,7 +12,7 @@ do
         -w "%{http_code} %{url_effective}" \
         --data-urlencode "data=$line" \
         --silent \
-        'http://localhost:9000/api/transactions/')
+        'http://localhost:9000/api/intesa/transactions/')
     count=$((count+1))
     http_code=$(echo $output|cut -d ' ' -f1)
     if [ "$http_code" == "200" ]

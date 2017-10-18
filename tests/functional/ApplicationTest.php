@@ -77,6 +77,17 @@ class ApplicationTest extends WebTestCase
         $this->assertContains('Stipendio o pensione', $client->getResponse()->getContent());
     }
 
+    public function testShouldBounceForBancaIntesaANewTransactionsWithWrongCSVPayload()
+    {
+        $client = $this->createClient();
+        $wrongCsvPayload = ',Data,Descrizione,Accrediti,Addebiti,Descrizione estesa,';
+        $postParameters = [
+            'data' => $wrongCsvPayload
+        ];
+        $client->request('POST', '/api/intesa/transactions/', $postParameters);
+        $this->assertEquals(422, $client->getResponse()->getStatusCode());
+    }
+
     public function testShouldCreateANewTransactionsWithCSVPayload()
     {
         $client = $this->createClient();
