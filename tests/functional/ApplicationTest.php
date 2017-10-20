@@ -65,7 +65,7 @@ class ApplicationTest extends WebTestCase
     public function testShouldCreateForBancaIntesaANewTransactionsWithCSVPayload()
     {
         $client = $this->createClient();
-        $csvPayload = '26/09/17,26/09/17,Stipendio o pensione,2295.00,,Cod. Disp.: 011709260g42p3 Sala Stipendio O Pensione 01nx02bc1210015064224951640.8040359 Stipendio Settembre 2017 Bonifico A Vostro Favore Disposto Da: Mitt.: DueB Or Benef.: Pinco Pallo';
+        $csvPayload = '9/6/2017,Stipendio O Pensione,COD. DISP. 0117xxxxx6VVQ SALA STIPENDIO O PENSIONE 201708300503316074 Accredito Stipendio Bonifico A Vostro Favore Disposto Da MITT. TWODRIN SRL BENEF. PASQUINI SIMONE BIC. ORD. BNLIITRRXXX,Conto 1000/00014003,CONTABILIZZATO,Stipendi e pensioni,EUR,"1,802.00"';
         $postParameters = [
             'data' => $csvPayload
         ];
@@ -74,7 +74,50 @@ class ApplicationTest extends WebTestCase
         $this->assertEquals('http://localhost/api/transactions/1', $client->getResponse()->headers->get('Location'));
         $client = $this->createClient();
         $client->request('GET', 'api/transactions/1');
-        $this->assertContains('Stipendio o pensione', $client->getResponse()->getContent());
+        $this->assertEquals('Stipendi e pensioni', $this->getDescription($client->getResponse()->getContent()));
+        //Check if the Revenue is right
+        $this->assertEquals('1,802.00', $this->getRevenue($client->getResponse()->getContent()));
+        $this->assertEquals('', $this->getExpenditure($client->getResponse()->getContent()));
+        //Check if the date is in format YYYY-MM-DD
+        $this->assertContains('2017-09-06', $this->getDate($client->getResponse()->getContent()));
+
+        $client = $this->createClient();
+        $csvPayload = '9/20/2017,Assegno N. 343,Assegno N. 831964Xxxx,Conto 1000/00014003,CONTABILIZZATO,Assegni pagati,EUR,-903.00';
+        $postParameters = [
+            'data' => $csvPayload
+        ];
+        $client->request('POST', '/api/intesa/transactions/', $postParameters);
+        $this->assertEquals(201, $client->getResponse()->getStatusCode());
+        $this->assertEquals('http://localhost/api/transactions/2', $client->getResponse()->headers->get('Location'));
+        $client = $this->createClient();
+        $client->request('GET', 'api/transactions/2');
+        $this->assertContains('Assegni pagati', $client->getResponse()->getContent());
+        //Check if the amount is negative
+        $this->assertEquals('-903.00', $this->getExpenditure($client->getResponse()->getContent()));
+    }
+
+    private function getDate($content)
+    {
+        //FIX move this into Themis\Client\Response
+        return json_decode($content)->valuedate;
+    }
+
+    private function getDescription($content)
+    {
+        //FIX move this into Themis\Client\Response
+        return json_decode($content)->description;
+    }
+
+    private function getRevenue($content)
+    {
+        //FIX move this into Themis\Client\Response
+        return json_decode($content)->revenue;
+    }
+
+    private function getExpenditure($content)
+    {
+        //FIX move this into Themis\Client\Response
+        return json_decode($content)->expenditure;
     }
 
     public function testShouldBounceForBancaIntesaANewTransactionsWithWrongCSVPayload()

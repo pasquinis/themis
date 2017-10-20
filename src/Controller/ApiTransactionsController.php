@@ -67,22 +67,43 @@ class ApiTransactionsController
         return $response;
     }
 
+    private function forgeAmount($amount)
+    {
+        return number_format(str_replace(',', '', $amount), 2);
+    }
+
     private function forgePayloadForIntesa(array $payload)
     {
-        $forging = function ($date) {
-            $dateSplitted = explode('/', $date);
-            return "20{$dateSplitted[2]}-{$dateSplitted[1]}-{$dateSplitted[0]}";
+        $forgingDate = function ($date) {
+            //Intesa CSV has date in M/D/YYYY format
+            $date = DateTime::createFromFormat('n/j/Y', $date);
+            return $date->format('Y-m-d');
         };
 
         $parsed = str_getcsv($payload['data']);
+
+        $forgingAmount = function ($amount, $type) {
+            if (
+                $type == 'revenue' && (int)$amount > 0
+            ) {
+                return $this->forgeAmount($amount);
+            }
+            if (
+                $type == 'expenditure' && (int)$amount < 0
+            ) {
+                return $this->forgeAmount($amount);
+            }
+            return '';
+        };
+
         $forged = [
-            'operationDate' => $forging($parsed[0]),
-            'valueDate' => $forging($parsed[1]),
-            'description' => $parsed[2],
-            'reason' => $parsed[5],
-            'revenue' => $parsed[3],
-            'expenditure' => $parsed[4],
-            'currency' => 'EUR',
+            'operationDate' => $forgingDate($parsed[0]),
+            'valueDate' => $forgingDate($parsed[0]),
+            'description' => $parsed[5],
+            'reason' => $parsed[2],
+            'revenue' => $forgingAmount($parsed[7], 'revenue'),
+            'expenditure' => $forgingAmount($parsed[7], 'expenditure'),
+            'currency' => $parsed[6],
         ];
         return $forged;
     }
@@ -163,9 +184,8 @@ class ApiTransactionsController
     private function sanityCheck($payload)
     {
         $extracted = str_getcsv($payload['data']);
-        preg_match('#(\d.)/(\d.)/(\d.)#', $extracted[0], $matchesForFirstDate);
-        preg_match('#(\d.)/(\d.)/(\d.)#', $extracted[0], $matchesForSecondDate);
-        return count($matchesForFirstDate) == 4 && count($matchesForSecondDate) == 4;
+        preg_match('#[\d]{1,2}/[\d]{1,2}/[\d]{4}#', $extracted[0], $matchesForFirstDate);
+        return !empty($matchesForFirstDate);
     }
 
     private function createLocation(Request $request, Application $application, array $payload)
