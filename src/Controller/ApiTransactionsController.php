@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Themis\Application;
 use Themis\Payload\Request as PayloadRequest;
+use Themis\Transaction\Transaction;
 use \DateTime;
 
 class ApiTransactionsController
@@ -14,14 +15,15 @@ class ApiTransactionsController
     public function doPostTransactionsForIntesa(Request $request, Application $application)
     {
         try {
-            $boxed = PayloadRequest::box($request);
+            $payloadRequest = PayloadRequest::box($request);
         } catch ( BadRequestHttpException $e) {
             $response = new Response();
             $response->setStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
             return $response;
         }
 
-        $payload = $this->forgePayloadForIntesa($request->request->all());
+        $transaction = Transaction::box($payloadRequest);
+        $payload = $transaction->toArray();
 
         if ($this->isAlreadySavedTheTransaction($payload, $application)) {
             $response = new Response();

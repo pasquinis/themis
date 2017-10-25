@@ -46,4 +46,46 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('-3,800.00', $transaction->expenditure());
         $this->assertEquals('EUR', $transaction->currency());
     }
+
+    public function testShouldHaveAnArrayRepresentationOfTransaction()
+    {
+        //FIXME duplication
+        $this->request
+            ->method('offsetExists')
+            ->will($this->returnValue(true))
+        ;
+        $config = [
+            'data' => '9/20/2017',
+            'operation' => 'Bonifici in uscita',
+            'details' => 'RISTRUTT./EFF. ENERG./MOB. ELETTR. ART. 16BIS TUIR Saldo Lavori',
+            'bank_account' => 'Conto 1000/1234',
+            'accounting' => 'CONTABILIZZATO',
+            'category' => 'Bonifici in uscita',
+            'currency' => 'EUR',
+            'amount' => '-3,800.00',
+        ];
+
+        $this->request
+            ->method('offsetGet')
+            ->will($this->returnCallback(
+                function ($key) use ($config) {
+                    return $config[$key];
+                }
+            ))
+        ;
+
+        $transaction = Transaction::box($this->request);
+        $this->assertEquals(
+            [
+                'operationDate' => '2017-09-20',
+                'valueDate' => '2017-09-20',
+                'description' => 'Bonifici in uscita',
+                'reason' => 'RISTRUTT./EFF. ENERG./MOB. ELETTR. ART. 16BIS TUIR Saldo Lavori',
+                'revenue' => '',
+                'expenditure' => '-3,800.00',
+                'currency' => 'EUR',
+            ],
+            $transaction->toArray())
+        ;
+    }
 }

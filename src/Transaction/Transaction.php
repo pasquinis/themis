@@ -45,6 +45,11 @@ class Transaction implements ArrayAccess
         unset($this->request[$offset]);
     }
 
+    public function toArray()
+    {
+        return $this->transaction;
+    }
+
     private function forgeAmount($amount)
     {
         return number_format(str_replace(',', '', $amount), 2);
@@ -71,7 +76,7 @@ class Transaction implements ArrayAccess
             return '';
         };
 
-        $forged = [
+        return [
             'operationDate' => $forgingDate($this->request['data']),
             'valueDate' => $forgingDate($this->request['data']),
             'description' => $this->request['category'],
@@ -80,6 +85,5 @@ class Transaction implements ArrayAccess
             'expenditure' => $forgingAmount($this->request['amount'], 'expenditure'),
             'currency' => $this->request['currency'],
         ];
-        return $forged;
     }
 }
