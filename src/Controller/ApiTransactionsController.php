@@ -4,14 +4,18 @@ namespace Themis\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Themis\Application;
+use Themis\Payload\Request as PayloadRequest;
 use \DateTime;
 
 class ApiTransactionsController
 {
     public function doPostTransactionsForIntesa(Request $request, Application $application)
     {
-        if (!$this->sanityCheck($request->request->all())) {
+        try {
+            $boxed = PayloadRequest::box($request);
+        } catch ( BadRequestHttpException $e) {
             $response = new Response();
             $response->setStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
             return $response;
@@ -179,13 +183,6 @@ class ApiTransactionsController
             $response->setStatusCode(Response::HTTP_OK);
             return $response;
         }
-    }
-
-    private function sanityCheck($payload)
-    {
-        $extracted = str_getcsv($payload['data']);
-        preg_match('#[\d]{1,2}/[\d]{1,2}/[\d]{4}#', $extracted[0], $matchesForFirstDate);
-        return !empty($matchesForFirstDate);
     }
 
     private function createLocation(Request $request, Application $application, array $payload)
