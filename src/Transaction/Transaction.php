@@ -3,6 +3,7 @@ namespace Themis\Transaction;
 
 use ArrayAccess;
 use DateTime;
+use Themis\Application;
 use Themis\Payload\Request;
 
 class Transaction implements ArrayAccess
@@ -15,7 +16,8 @@ class Transaction implements ArrayAccess
         $this->request = $request;
         $this->transaction = $this->forgeTransaction();
     }
-    public function box(Request $request)
+
+    public function byRequest(Request $request)
     {
         return new self($request);
     }

@@ -22,7 +22,7 @@ class ApiTransactionsController
             return $response;
         }
 
-        $transaction = Transaction::box($payloadRequest);
+        $transaction = Transaction::byRequest($payloadRequest);
         $payload = $transaction->toArray();
 
         if ($this->isAlreadySavedTheTransaction($payload, $application)) {

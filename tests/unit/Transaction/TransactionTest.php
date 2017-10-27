@@ -37,7 +37,7 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
 
     public function testShouldCreateATransactionByBoxingARequest()
     {
-        $transaction = Transaction::box($this->request);
+        $transaction = Transaction::byRequest($this->request);
         $this->assertEquals('2017-09-20', $transaction->operationDate());
         $this->assertEquals('2017-09-20', $transaction->valueDate());
         $this->assertEquals('Bonifici in uscita', $transaction->description());
@@ -49,7 +49,7 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
 
     public function testShouldHaveAnArrayRepresentationOfTransaction()
     {
-        $transaction = Transaction::box($this->request);
+        $transaction = Transaction::byRequest($this->request);
         $this->assertEquals(
             [
                 'operationDate' => '2017-09-20',
