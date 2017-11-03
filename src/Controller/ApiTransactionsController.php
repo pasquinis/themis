@@ -5,6 +5,7 @@ namespace Themis\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Themis\Http\ResponseFactory;
 use Themis\Application;
 use Themis\Payload\Request as PayloadRequest;
 use Themis\Transaction\Transaction;
@@ -17,20 +18,16 @@ class ApiTransactionsController
         try {
             $payloadRequest = PayloadRequest::box($request);
         } catch ( BadRequestHttpException $e) {
-            $response = new Response();
-            $response->setStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY);
-            return $response;
+            return ResponseFactory::unprocessable();
         }
 
         $transaction = Transaction::byRequest($payloadRequest);
         $payload = $transaction->toArray();
 
         if ($this->isAlreadySavedTheTransaction($payload, $application)) {
-            $response = new Response();
-            $location = $this->createLocation($request, $application, $payload);
-            $response->headers->set('Location', $location);
-            $response->setStatusCode(Response::HTTP_OK);
-            return $response;
+            return ResponseFactory::ok(
+                $this->createLocation($request, $application, $payload)
+            );
         }
 
         $application['db']->insert(
@@ -40,11 +37,9 @@ class ApiTransactionsController
 
         $transaction = $this->transactionWith($payload, $application);
 
-        $response = new Response();
-        $location = $this->createLocation($request, $application, $payload);
-        $response->headers->set('Location', $location);
-        $response->setStatusCode(Response::HTTP_CREATED);
-        return $response;
+        return ResponseFactory::created(
+            $this->createLocation($request, $application, $payload)
+        );
     }
 
     public function doPostTransactions(Request $request, Application $application)
@@ -52,11 +47,9 @@ class ApiTransactionsController
         $payload = $this->forgePayload($request->request->all());
 
         if ($this->isAlreadySavedTheTransaction($payload, $application)) {
-            $response = new Response();
-            $location = $this->createLocation($request, $application, $payload);
-            $response->headers->set('Location', $location);
-            $response->setStatusCode(Response::HTTP_OK);
-            return $response;
+            return ResponseFactory::ok(
+                $this->createLocation($request, $application, $payload)
+            );
         }
 
         $application['db']->insert(
@@ -66,11 +59,9 @@ class ApiTransactionsController
 
         $transaction = $this->transactionWith($payload, $application);
 
-        $response = new Response();
-        $location = $this->createLocation($request, $application, $payload);
-        $response->headers->set('Location', $location);
-        $response->setStatusCode(Response::HTTP_CREATED);
-        return $response;
+        return ResponseFactory::created(
+            $this->createLocation($request, $application, $payload)
+        );
     }
 
     private function forgeAmount($amount)
