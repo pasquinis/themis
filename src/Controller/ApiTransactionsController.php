@@ -25,9 +25,9 @@ class ApiTransactionsController
         $payload = $transaction->toArray();
 
         if ($this->isAlreadySavedTheTransaction($payload, $application)) {
-            return ResponseFactory::ok(
-                $this->createLocation($request, $application, $payload)
-            );
+            return ResponseFactory::ok([
+                'location' => $this->createLocation($request, $application, $payload)
+            ]);
         }
 
         $application['db']->insert(
@@ -37,9 +37,9 @@ class ApiTransactionsController
 
         $transaction = $this->transactionWith($payload, $application);
 
-        return ResponseFactory::created(
-            $this->createLocation($request, $application, $payload)
-        );
+        return ResponseFactory::created([
+            'location' => $this->createLocation($request, $application, $payload)
+        ]);
     }
 
     public function doPostTransactions(Request $request, Application $application)
@@ -47,9 +47,9 @@ class ApiTransactionsController
         $payload = $this->forgePayload($request->request->all());
 
         if ($this->isAlreadySavedTheTransaction($payload, $application)) {
-            return ResponseFactory::ok(
-                $this->createLocation($request, $application, $payload)
-            );
+            return ResponseFactory::ok([
+                'location' => $this->createLocation($request, $application, $payload)
+            ]);
         }
 
         $application['db']->insert(
@@ -59,50 +59,9 @@ class ApiTransactionsController
 
         $transaction = $this->transactionWith($payload, $application);
 
-        return ResponseFactory::created(
-            $this->createLocation($request, $application, $payload)
-        );
-    }
-
-    private function forgeAmount($amount)
-    {
-        return number_format(str_replace(',', '', $amount), 2);
-    }
-
-    private function forgePayloadForIntesa(array $payload)
-    {
-        $forgingDate = function ($date) {
-            //Intesa CSV has date in M/D/YYYY format
-            $date = DateTime::createFromFormat('n/j/Y', $date);
-            return $date->format('Y-m-d');
-        };
-
-        $parsed = str_getcsv($payload['data']);
-
-        $forgingAmount = function ($amount, $type) {
-            if (
-                $type == 'revenue' && (int)$amount > 0
-            ) {
-                return $this->forgeAmount($amount);
-            }
-            if (
-                $type == 'expenditure' && (int)$amount < 0
-            ) {
-                return $this->forgeAmount($amount);
-            }
-            return '';
-        };
-
-        $forged = [
-            'operationDate' => $forgingDate($parsed[0]),
-            'valueDate' => $forgingDate($parsed[0]),
-            'description' => $parsed[5],
-            'reason' => $parsed[2],
-            'revenue' => $forgingAmount($parsed[7], 'revenue'),
-            'expenditure' => $forgingAmount($parsed[7], 'expenditure'),
-            'currency' => $parsed[6],
-        ];
-        return $forged;
+        return ResponseFactory::created([
+            'location' => $this->createLocation($request, $application, $payload)
+        ]);
     }
 
     private function forgePayload(array $payload)
@@ -137,19 +96,14 @@ class ApiTransactionsController
     {
         $sql = 'SELECT * FROM transactions WHERE id = ?';
         $transaction = $application['db']->fetchAssoc($sql, [(int) $transactionId]);
-        $response = new Response();
-        $response->setStatusCode(Response::HTTP_OK);
-        $response->headers->set('Content-Type', 'application/json');
-        $response->setContent(json_encode($transaction));
-        return $response;
+
+        return ResponseFactory::okInJsonOutput(['content' => $transaction]);
     }
 
     public function doPutTransactions($transactionId, Request $request, Application $application)
     {
         if (!$this->existTheTransaction($transactionId, $application)) {
-            $response = new Response();
-            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
-            return $response;
+            return ResponseFactory::badRequest();
         }
 
         $payload = $request->request->all();
@@ -162,9 +116,7 @@ class ApiTransactionsController
                     'created' => (new DateTime('now'))->format(DateTime::ISO8601)
                 ]
             );
-            $response = new Response();
-            $response->setStatusCode(Response::HTTP_OK);
-            return $response;
+            return ResponseFactory::ok();
         } else {
             $application['db']->delete(
                 'underscore',
@@ -172,9 +124,7 @@ class ApiTransactionsController
                     'id' => $transactionId
                 ]
             );
-            $response = new Response();
-            $response->setStatusCode(Response::HTTP_OK);
-            return $response;
+            return ResponseFactory::ok();
         }
     }
 
