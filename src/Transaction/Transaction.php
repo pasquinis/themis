@@ -5,6 +5,7 @@ use ArrayAccess;
 use DateTime;
 use Themis\Application;
 use Themis\Payload\Request;
+use Themis\Payload\RequestCariparma;
 
 class Transaction implements ArrayAccess
 {
@@ -14,7 +15,17 @@ class Transaction implements ArrayAccess
     private function __construct($request)
     {
         $this->request = $request;
-        $this->transaction = $this->forgeTransaction();
+        if ($this->request instanceof Request) {
+            $this->transaction = $this->forgeTransaction();
+        }
+        if ($this->request instanceof RequestCariparma) {
+            $this->transaction = $this->forgeTransactionCariparma();
+        }
+    }
+
+    public function byRequestCariparma(RequestCariparma $request)
+    {
+        return new self($request);
     }
 
     public function byRequest(Request $request)
@@ -85,6 +96,37 @@ class Transaction implements ArrayAccess
             'reason' => $this->request['details'],
             'revenue' => $forgingAmount($this->request['amount'], 'revenue'),
             'expenditure' => $forgingAmount($this->request['amount'], 'expenditure'),
+            'currency' => $this->request['currency'],
+        ];
+    }
+
+    private function forgeTransactionCariparma()
+    {
+        $forgingDate = function ($date) {
+            $date = DateTime::createFromFormat('j/n/Y', $date);
+            return $date->format('Y-m-d');
+        };
+        $forgingAmount = function ($amount, $type) {
+            if (
+                $type == 'revenue' && (int)$amount > 0
+            ) {
+                return $this->forgeAmount($amount);
+            }
+            if (
+                $type == 'expenditure' && (int)$amount < 0
+            ) {
+                return $this->forgeAmount($amount);
+            }
+            return '';
+        };
+
+        return [
+            'operationDate' => $forgingDate($this->request['operationDate']),
+            'valueDate' => $forgingDate($this->request['valueDate']),
+            'description' => $this->request['description'],
+            'reason' => $this->request['reason'],
+            'revenue' => $forgingAmount($this->request['revenue'], 'revenue'),
+            'expenditure' => $forgingAmount($this->request['expenditure'], 'expenditure'),
             'currency' => $this->request['currency'],
         ];
     }

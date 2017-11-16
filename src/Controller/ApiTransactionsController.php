@@ -8,6 +8,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Themis\Http\ResponseFactory;
 use Themis\Application;
 use Themis\Payload\Request as PayloadRequest;
+use Themis\Payload\RequestCariparma;
 use Themis\Transaction\Transaction;
 use \DateTime;
 
@@ -44,7 +45,15 @@ class ApiTransactionsController
 
     public function doPostTransactions(Request $request, Application $application)
     {
-        $payload = $this->forgePayload($request->request->all());
+        try {
+            $payloadRequest = RequestCariparma::box($request);
+        } catch ( BadRequestHttpException $e) {
+            var_dump($e->getMessage());
+            return ResponseFactory::unprocessable();
+        }
+
+        $transaction = Transaction::byRequestCariparma($payloadRequest);
+        $payload = $transaction->toArray();
 
         if ($this->isAlreadySavedTheTransaction($payload, $application)) {
             return ResponseFactory::ok([
