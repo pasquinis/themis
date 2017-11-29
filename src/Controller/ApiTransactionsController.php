@@ -48,7 +48,6 @@ class ApiTransactionsController
         try {
             $payloadRequest = RequestCariparma::box($request);
         } catch ( BadRequestHttpException $e) {
-            var_dump($e->getMessage());
             return ResponseFactory::unprocessable();
         }
 

@@ -13,6 +13,7 @@ class Request implements ArrayAccess
     {
         $this->mapRequest($request);
         $this->isWellformed();
+        $this->isNotProcessable();
     }
 
     private function mapRequest($request)
@@ -41,6 +42,16 @@ class Request implements ArrayAccess
         preg_match('#[\d]{1,2}/[\d]{1,2}/[\d]{4}#', $this->request['data'], $matches);
         if (empty($matches)) {
             throw new BadRequestHttpException("Error, the data values is wrong, the full payload is " . var_export($this->request, true));
+        }
+
+        return true;
+    }
+
+    public function isNotProcessable()
+    {
+        preg_match('#(NON CONTABILIZZATO)#', $this->request['accounting'], $matches);
+        if (!empty($matches)) {
+            throw new BadRequestHttpException("Error, the transaction is not yet accounted " . var_export($this->request, true));
         }
 
         return true;

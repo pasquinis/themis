@@ -31,7 +31,15 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     public function testShouldVerifyTheSanityOfWrongPayload()
     {
         $this->httpRequest->initialize([], ['data' => ',Investimenti e previdenza:,-,,,,, ']);
+        Request::box($this->httpRequest);
+    }
 
-        $boxed = Request::box($this->httpRequest);
+    /**
+     * @expectedException Symfony\Component\HttpKernel\Exception\BadRequestHttpException
+     */
+    public function testShouldRejectTransactionWhenAccountingIsNotYetAccounted()
+    {
+        $this->httpRequest->initialize([], ['data' => '9/20/2017,Assegno N. 343,Assegno N. 831964Xxxx,Conto 1000/00014003,NON CONTABILIZZATO,Assegni pagati,EUR,-903.00']);
+        Request::box($this->httpRequest);
     }
 }
