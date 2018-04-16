@@ -71,10 +71,11 @@ class Transaction implements ArrayAccess
     private function forgeTransaction()
     {
         $forgingDate = function ($date) {
-            //Intesa CSV has date in M/D/YYYY format
-            $date = DateTime::createFromFormat('n/j/Y', $date);
+            //Intesa CSV has date in DD/MM/YY format
+            $date = DateTime::createFromFormat('d/m/y', $date);
             return $date->format('Y-m-d');
         };
+
         $forgingAmount = function ($amount, $type) {
             if (
                 $type == 'revenue' && (int)$amount > 0
@@ -89,14 +90,15 @@ class Transaction implements ArrayAccess
             return '';
         };
 
+        //TODO add Interface::
         return [
-            'operationDate' => $forgingDate($this->request['data']),
-            'valueDate' => $forgingDate($this->request['data']),
-            'description' => $this->request['category'],
-            'reason' => $this->request['details'],
-            'revenue' => $forgingAmount($this->request['amount'], 'revenue'),
-            'expenditure' => $forgingAmount($this->request['amount'], 'expenditure'),
-            'currency' => $this->request['currency'],
+            'operationDate' => $forgingDate($this->request['operationDate']),
+            'valueDate' => $forgingDate($this->request['valueDate']),
+            'description' => $this->request['description'],
+            'reason' => $this->request['description_extended'],
+            'revenue' => $forgingAmount($this->request['revenue'], 'revenue'),
+            'expenditure' => $forgingAmount($this->request['expenditure'], 'expenditure'),
+            'currency' => 'EUR',
         ];
     }
 

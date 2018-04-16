@@ -13,22 +13,20 @@ class Request implements ArrayAccess
     {
         $this->mapRequest($request);
         $this->isWellformed();
-        $this->isNotProcessable();
     }
 
     private function mapRequest($request)
     {
-        if (count($request) != 8) {
+        if (count($request) != 7) {
             throw new BadRequestHttpException("Error, see request: " . var_export($request, true));
         }
-        $this->request['data'] = $request[0];
-        $this->request['operation'] = $request[1];
-        $this->request['details'] = $request[2];
-        $this->request['bank_account'] = $request[3];
-        $this->request['accounting'] = $request[4];
-        $this->request['category'] = $request[5];
-        $this->request['currency'] = $request[6];
-        $this->request['amount'] = $request[7];
+        $this->request['operationDate'] = $request[0];
+        $this->request['valueDate'] = $request[1];
+        $this->request['description'] = $request[2];
+        $this->request['revenue'] = $request[3];
+        $this->request['expenditure'] = $request[4];
+        $this->request['description_extended'] = $request[5];
+        $this->request['bank_account'] = $request[6];
     }
 
     public static function box(HttpRequest $request)
@@ -39,19 +37,9 @@ class Request implements ArrayAccess
 
     public function isWellformed()
     {
-        preg_match('#[\d]{1,2}/[\d]{1,2}/[\d]{4}#', $this->request['data'], $matches);
+        preg_match('#[\d]{1,2}/[\d]{1,2}/[\d]{2}#', $this->request['operationDate'], $matches);
         if (empty($matches)) {
             throw new BadRequestHttpException("Error, the data values is wrong, the full payload is " . var_export($this->request, true));
-        }
-
-        return true;
-    }
-
-    public function isNotProcessable()
-    {
-        preg_match('#(NON CONTABILIZZATO)#', $this->request['accounting'], $matches);
-        if (!empty($matches)) {
-            throw new BadRequestHttpException("Error, the transaction is not yet accounted " . var_export($this->request, true));
         }
 
         return true;

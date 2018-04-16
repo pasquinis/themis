@@ -14,15 +14,15 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
         ;
 
         //Populate the callback
+        //TODO remove this duplication
         $config = [
-            'data' => '9/20/2017',
-            'operation' => 'Bonifici in uscita',
-            'details' => 'RISTRUTT./EFF. ENERG./MOB. ELETTR. ART. 16BIS TUIR Saldo Lavori',
+            'operationDate' => '20/09/17',
+            'valueDate' => '20/09/17',
+            'description' => 'Bonifici in uscita',
+            'description_extended' => 'RISTRUTT./EFF. ENERG./MOB. ELETTR. ART. 16BIS TUIR Saldo Lavori',
             'bank_account' => 'Conto 1000/1234',
-            'accounting' => 'CONTABILIZZATO',
-            'category' => 'Bonifici in uscita',
-            'currency' => 'EUR',
-            'amount' => '-3,800.00',
+            'revenue' => '',
+            'expenditure' => '-3,800.00',
         ];
         $this->request
             ->method('offsetGet')

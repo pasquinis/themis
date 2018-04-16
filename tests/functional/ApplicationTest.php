@@ -48,7 +48,7 @@ class ApplicationTest extends WebTestCase
     public function testShouldCreateForBancaIntesaANewTransactionsWithCSVPayload()
     {
         $client = $this->createClient();
-        $csvPayload = '9/6/2017,Stipendio O Pensione,COD. DISP. 0117xxxxx6VVQ SALA STIPENDIO O PENSIONE 201708300503316074 Accredito Stipendio Bonifico A Vostro Favore Disposto Da MITT. TWODRIN SRL BENEF. PASQUINI SIMONE BIC. ORD. BNLIITRRXXX,Conto 1000/00014003,CONTABILIZZATO,Stipendi e pensioni,EUR,"1,802.00"';
+        $csvPayload = '02/01/18,29/12/17,Pagamento tramite pos,,-227.60,Supermercato Esselunga Via 29 121846  Carta N6762 Xxxx Xxxx Xx53abi  05584 Cod3010024 008655,CARTA BANCOCARD                **** 53';
         $postParameters = [
             'data' => $csvPayload
         ];
@@ -57,15 +57,16 @@ class ApplicationTest extends WebTestCase
         $this->assertEquals('http://localhost/api/transactions/1', $client->getResponse()->headers->get('Location'));
         $client = $this->createClient();
         $client->request('GET', 'api/transactions/1');
-        $this->assertEquals('Stipendi e pensioni', $this->getDescription($client->getResponse()->getContent()));
+        $this->assertEquals('Pagamento tramite pos', $this->getDescription($client->getResponse()->getContent()));
         //Check if the Revenue is right
-        $this->assertEquals('1,802.00', $this->getRevenue($client->getResponse()->getContent()));
-        $this->assertEquals('', $this->getExpenditure($client->getResponse()->getContent()));
+        $this->assertEquals('', $this->getRevenue($client->getResponse()->getContent()));
+        $this->assertEquals('-227.60', $this->getExpenditure($client->getResponse()->getContent()));
         //Check if the date is in format YYYY-MM-DD
-        $this->assertContains('2017-09-06', $this->getDate($client->getResponse()->getContent()));
+        $this->assertContains('2018-01-02', $this->getOperationDate($client->getResponse()->getContent()));
+        $this->assertContains('2017-12-29', $this->getValueDate($client->getResponse()->getContent()));
 
         $client = $this->createClient();
-        $csvPayload = '9/20/2017,Assegno N. 343,Assegno N. 831964Xxxx,Conto 1000/00014003,CONTABILIZZATO,Assegni pagati,EUR,-903.00';
+        $csvPayload = '08/01/18,08/01/17,Pagamento tramite pos,,-903.00,Supermercato Esselunga Via 29 121846  Carta N6762 Xxxx Xxxx Xx53abi  05584 Cod3010024 008655,CARTA BANCOCARD                **** 53';
         $postParameters = [
             'data' => $csvPayload
         ];
@@ -74,12 +75,18 @@ class ApplicationTest extends WebTestCase
         $this->assertEquals('http://localhost/api/transactions/2', $client->getResponse()->headers->get('Location'));
         $client = $this->createClient();
         $client->request('GET', 'api/transactions/2');
-        $this->assertContains('Assegni pagati', $client->getResponse()->getContent());
+        $this->assertContains('Pagamento tramite pos', $client->getResponse()->getContent());
         //Check if the amount is negative
         $this->assertEquals('-903.00', $this->getExpenditure($client->getResponse()->getContent()));
     }
 
-    private function getDate($content)
+    private function getOperationDate($content)
+    {
+        //FIX move this into Themis\Client\Response
+        return json_decode($content)->operationdate;
+    }
+
+    private function getValueDate($content)
     {
         //FIX move this into Themis\Client\Response
         return json_decode($content)->valuedate;

@@ -25,7 +25,6 @@ class Application extends \Silex\Application
         $this->register(new TwigServiceProvider(), [
             'twig.path' => __DIR__.'/views',
         ]);
-
         $this->mount('/hello/{name}', new Hello());
         $this->mount('/api/transactions', new Transactions());
         $this->mount('/api/intesa/transactions', new TransactionsForIntesa());
