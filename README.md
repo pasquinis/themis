@@ -25,6 +25,8 @@ Total POST executed: 151
  - with response WARNING: 0
 ```
 
+Because this script now handle Cariparma and also BancaIntesa, it is possible derail the URL from BancaIntesa to Cariparma with `--old` flag (Cariparma is the old API)
+
 ## Docker
 
 ### Build the Phpunit container

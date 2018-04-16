@@ -1,10 +1,19 @@
 #!/bin/sh
 
 FILENAME="$1"
+OLD="$2"
 count=0
 count_with_200=0
 count_with_201=0
 count_with_warning=0
+
+url=''
+if [ "$OLD" = '--old' ]
+then
+    url='http://localhost:9000/api/transactions/'
+else
+    url='http://localhost:9000/api/intesa/transactions/'
+fi
 
 while read -r line
 do
@@ -12,8 +21,8 @@ do
         -w "%{http_code} %{url_effective}" \
         --data-urlencode "data=$line" \
         --silent \
-        'http://localhost:9000/api/intesa/transactions/')
-        # 'http://localhost:9000/api/transactions/')
+        $url)
+
     count=$((count+1))
     http_code=$(echo $output|cut -d ' ' -f1)
     if [ "$http_code" == "200" ]
