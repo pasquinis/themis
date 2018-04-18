@@ -4,21 +4,31 @@ namespace Themis\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Themis\Http\ResponseFactory;
 use Themis\Application;
+use Themis\Payload\Request as PayloadRequest;
+use Themis\Payload\RequestCariparma;
+use Themis\Transaction\Transaction;
 use \DateTime;
 
 class ApiTransactionsController
 {
-    public function doPostTransactions(Request $request, Application $application)
+    public function doPostTransactionsForIntesa(Request $request, Application $application)
     {
-        $payload = $this->forgePayload($request->request->all());
+        try {
+            $payloadRequest = PayloadRequest::box($request);
+        } catch ( BadRequestHttpException $e) {
+            return ResponseFactory::unprocessable();
+        }
+
+        $transaction = Transaction::byRequest($payloadRequest);
+        $payload = $transaction->toArray();
 
         if ($this->isAlreadySavedTheTransaction($payload, $application)) {
-            $response = new Response();
-            $location = $this->createLocation($request, $application, $payload);
-            $response->headers->set('Location', $location);
-            $response->setStatusCode(Response::HTTP_OK);
-            return $response;
+            return ResponseFactory::ok([
+                'location' => $this->createLocation($request, $application, $payload)
+            ]);
         }
 
         $application['db']->insert(
@@ -28,11 +38,38 @@ class ApiTransactionsController
 
         $transaction = $this->transactionWith($payload, $application);
 
-        $response = new Response();
-        $location = $this->createLocation($request, $application, $payload);
-        $response->headers->set('Location', $location);
-        $response->setStatusCode(Response::HTTP_CREATED);
-        return $response;
+        return ResponseFactory::created([
+            'location' => $this->createLocation($request, $application, $payload)
+        ]);
+    }
+
+    public function doPostTransactions(Request $request, Application $application)
+    {
+        try {
+            $payloadRequest = RequestCariparma::box($request);
+        } catch ( BadRequestHttpException $e) {
+            return ResponseFactory::unprocessable();
+        }
+
+        $transaction = Transaction::byRequestCariparma($payloadRequest);
+        $payload = $transaction->toArray();
+
+        if ($this->isAlreadySavedTheTransaction($payload, $application)) {
+            return ResponseFactory::ok([
+                'location' => $this->createLocation($request, $application, $payload)
+            ]);
+        }
+
+        $application['db']->insert(
+            'transactions',
+             $payload
+        );
+
+        $transaction = $this->transactionWith($payload, $application);
+
+        return ResponseFactory::created([
+            'location' => $this->createLocation($request, $application, $payload)
+        ]);
     }
 
     private function forgePayload(array $payload)
@@ -67,19 +104,14 @@ class ApiTransactionsController
     {
         $sql = 'SELECT * FROM transactions WHERE id = ?';
         $transaction = $application['db']->fetchAssoc($sql, [(int) $transactionId]);
-        $response = new Response();
-        $response->setStatusCode(Response::HTTP_OK);
-        $response->headers->set('Content-Type', 'application/json');
-        $response->setContent(json_encode($transaction));
-        return $response;
+
+        return ResponseFactory::okInJsonOutput(['content' => $transaction]);
     }
 
     public function doPutTransactions($transactionId, Request $request, Application $application)
     {
         if (!$this->existTheTransaction($transactionId, $application)) {
-            $response = new Response();
-            $response->setStatusCode(Response::HTTP_BAD_REQUEST);
-            return $response;
+            return ResponseFactory::badRequest();
         }
 
         $payload = $request->request->all();
@@ -92,9 +124,7 @@ class ApiTransactionsController
                     'created' => (new DateTime('now'))->format(DateTime::ISO8601)
                 ]
             );
-            $response = new Response();
-            $response->setStatusCode(Response::HTTP_OK);
-            return $response;
+            return ResponseFactory::ok();
         } else {
             $application['db']->delete(
                 'underscore',
@@ -102,9 +132,7 @@ class ApiTransactionsController
                     'id' => $transactionId
                 ]
             );
-            $response = new Response();
-            $response->setStatusCode(Response::HTTP_OK);
-            return $response;
+            return ResponseFactory::ok();
         }
     }
 

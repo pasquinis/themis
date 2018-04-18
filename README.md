@@ -11,19 +11,28 @@ mkdir -p app/config \
   public
 
 ```
+## Prepare the CSV
+
+I found `xlsx2csv` a command line tool that transform xlsx to csv file (I put in the pipeline also `sed` for remove last two coma for each line).
+
+```bash
+$ xlsx2csv lista_completa_2018-03.xlsx |sed 's/[,]\{2\}$//'|tee lista_completa_2018-03.csv
+```
 ## Import the CSV
 
 In your environment you need to have bash and curl.
 In order to import the CSV execute:
 
 ```bash
-$ bash app/loader.sh ~/Documents/01-ListaMovimenti.csv
+$ bash app/loader.sh ~/Documents/lista_completa_2018-03.csv
 .......................................................................................................................................................
 Total POST executed: 151
  - with response 201: 151
  - with response 200: 0
  - with response WARNING: 0
 ```
+
+Because this script now handle Cariparma and also BancaIntesa, it is possible derail the URL from BancaIntesa to Cariparma with `--old` flag (Cariparma is the old API)
 
 ## Docker
 

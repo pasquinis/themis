@@ -45,21 +45,80 @@ class ApplicationTest extends WebTestCase
         $this->assertContains('Hello simone', $client->getResponse()->getContent());
     }
 
-    public function testShouldCreateANewTransactions()
+    public function testShouldCreateForBancaIntesaANewTransactionsWithCSVPayload()
     {
         $client = $this->createClient();
+        $csvPayload = '02/01/18,29/12/17,Pagamento tramite pos,,-227.60,Supermercato Esselunga Via 29 121846  Carta N6762 Xxxx Xxxx Xx53abi  05584 Cod3010024 008655,CARTA BANCOCARD                **** 53';
         $postParameters = [
-            'operationDate' => '09/02/2017',
-            'valueDate' => '09/02/2017',
-            'description' => 'PAGAMENTO TRAMITE POS',
-            'reason' => 'POS CARTA 124567 DEL 09/02/2017 ORE 13:44 C/O 1234567890 PINCO PALLO',
-            'revenue' => 0,
-            'expenditure' => -18.11,
-            'currency' => 'EUR',
+            'data' => $csvPayload
         ];
-        $client->request('POST', '/api/transactions/', $postParameters);
+        $client->request('POST', '/api/intesa/transactions/', $postParameters);
         $this->assertEquals(201, $client->getResponse()->getStatusCode());
         $this->assertEquals('http://localhost/api/transactions/1', $client->getResponse()->headers->get('Location'));
+        $client = $this->createClient();
+        $client->request('GET', 'api/transactions/1');
+        $this->assertEquals('Pagamento tramite pos', $this->getDescription($client->getResponse()->getContent()));
+        //Check if the Revenue is right
+        $this->assertEquals('', $this->getRevenue($client->getResponse()->getContent()));
+        $this->assertEquals('-227.60', $this->getExpenditure($client->getResponse()->getContent()));
+        //Check if the date is in format YYYY-MM-DD
+        $this->assertContains('2018-01-02', $this->getOperationDate($client->getResponse()->getContent()));
+        $this->assertContains('2017-12-29', $this->getValueDate($client->getResponse()->getContent()));
+
+        $client = $this->createClient();
+        $csvPayload = '08/01/18,08/01/17,Pagamento tramite pos,,-903.00,Supermercato Esselunga Via 29 121846  Carta N6762 Xxxx Xxxx Xx53abi  05584 Cod3010024 008655,CARTA BANCOCARD                **** 53';
+        $postParameters = [
+            'data' => $csvPayload
+        ];
+        $client->request('POST', '/api/intesa/transactions/', $postParameters);
+        $this->assertEquals(201, $client->getResponse()->getStatusCode());
+        $this->assertEquals('http://localhost/api/transactions/2', $client->getResponse()->headers->get('Location'));
+        $client = $this->createClient();
+        $client->request('GET', 'api/transactions/2');
+        $this->assertContains('Pagamento tramite pos', $client->getResponse()->getContent());
+        //Check if the amount is negative
+        $this->assertEquals('-903.00', $this->getExpenditure($client->getResponse()->getContent()));
+    }
+
+    private function getOperationDate($content)
+    {
+        //FIX move this into Themis\Client\Response
+        return json_decode($content)->operationdate;
+    }
+
+    private function getValueDate($content)
+    {
+        //FIX move this into Themis\Client\Response
+        return json_decode($content)->valuedate;
+    }
+
+    private function getDescription($content)
+    {
+        //FIX move this into Themis\Client\Response
+        return json_decode($content)->description;
+    }
+
+    private function getRevenue($content)
+    {
+        //FIX move this into Themis\Client\Response
+        return json_decode($content)->revenue;
+    }
+
+    private function getExpenditure($content)
+    {
+        //FIX move this into Themis\Client\Response
+        return json_decode($content)->expenditure;
+    }
+
+    public function testShouldBounceForBancaIntesaANewTransactionsWithWrongCSVPayload()
+    {
+        $client = $this->createClient();
+        $wrongCsvPayload = ',Data,Descrizione,Accrediti,Addebiti,Descrizione estesa,';
+        $postParameters = [
+            'data' => $wrongCsvPayload
+        ];
+        $client->request('POST', '/api/intesa/transactions/', $postParameters);
+        $this->assertEquals(422, $client->getResponse()->getStatusCode());
     }
 
     public function testShouldCreateANewTransactionsWithCSVPayload()
@@ -90,14 +149,9 @@ class ApplicationTest extends WebTestCase
     public function testShouldPreviewASingleTransaction()
     {
         $client = $this->createClient();
+        $csvPayload = '02/02/2017,01/02/2017,PAGAMENTO TRAMITE POS,POS CARTA 03055510 DEL 01/02/17 ORE 13.41 C/O 321868700233 ACQUA E SAPONE - MILANO NF,,-14.09,EUR';
         $postParameters = [
-            'operationDate' => '09/02/2017',
-            'valueDate' => '09/02/2017',
-            'description' => 'PAGAMENTO TRAMITE POS',
-            'reason' => 'POS CARTA 124567 DEL 09/02/2017 ORE 13:44 C/O 1234567890 PINCO PALLO',
-            'revenue' => 0,
-            'expenditure' => -18.11,
-            'currency' => 'EUR',
+            'data' => $csvPayload
         ];
         $client->request('POST', '/api/transactions/', $postParameters);
         $client = $this->createClient();
@@ -108,28 +162,18 @@ class ApplicationTest extends WebTestCase
     public function testTheIdempotencyOfATransactionCreation()
     {
         $client = $this->createClient();
+        $csvPayload = '02/02/2017,01/02/2017,PAGAMENTO TRAMITE POS,POS CARTA 03055510 DEL 01/02/17 ORE 13.41 C/O 321868700233 ACQUA E SAPONE - MILANO NF,,-14.09,EUR';
         $postParameters = [
-            'operationDate' => '09/02/2017',
-            'valueDate' => '09/02/2017',
-            'description' => 'PAGAMENTO TRAMITE POS',
-            'reason' => 'POS CARTA 124567 DEL 09/02/2017 ORE 13:44 C/O 1234567890 PINCO PALLO',
-            'revenue' => 0,
-            'expenditure' => -18.11,
-            'currency' => 'EUR',
+            'data' => $csvPayload
         ];
         $client->request('POST', '/api/transactions/', $postParameters);
         $this->assertEquals(201, $client->getResponse()->getStatusCode());
         $this->assertEquals('http://localhost/api/transactions/1', $client->getResponse()->headers->get('Location'));
-        $postParameters = [
-            'operationDate' => '09/02/2017',
-            'valueDate' => '09/02/2017',
-            'description' => 'PAGAMENTO TRAMITE POS',
-            'reason' => 'POS CARTA 124567 DEL 09/02/2017 ORE 13:44 C/O 1234567890 PINCO PALLO',
-            'revenue' => 0,
-            'expenditure' => -18.11,
-            'currency' => 'EUR',
-        ];
         $client = $this->createClient();
+        $csvPayload = '02/02/2017,01/02/2017,PAGAMENTO TRAMITE POS,POS CARTA 03055510 DEL 01/02/17 ORE 13.41 C/O 321868700233 ACQUA E SAPONE - MILANO NF,,-14.09,EUR';
+        $postParameters = [
+            'data' => $csvPayload
+        ];
         $client->request('POST', '/api/transactions/', $postParameters);
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
         $this->assertEquals('http://localhost/api/transactions/1', $client->getResponse()->headers->get('Location'));
@@ -138,28 +182,18 @@ class ApplicationTest extends WebTestCase
     public function testShouldCreateTwoTransactions()
     {
         $client = $this->createClient();
+        $csvPayload = '02/02/2017,01/02/2017,PAGAMENTO TRAMITE POS,POS CARTA 03055510 DEL 01/02/17 ORE 13.41 C/O 321868700233 ACQUA E SAPONE - MILANO NF,,-14.09,EUR';
         $postParameters = [
-            'operationDate' => '09/02/2017',
-            'valueDate' => '09/02/2017',
-            'description' => 'PAGAMENTO TRAMITE POS',
-            'reason' => 'POS CARTA 124567 DEL 09/02/2017 ORE 13:44 C/O 1234567890 PINCO PALLO',
-            'revenue' => 0,
-            'expenditure' => -18.11,
-            'currency' => 'EUR',
+            'data' => $csvPayload
         ];
         $client->request('POST', '/api/transactions/', $postParameters);
         $this->assertEquals(201, $client->getResponse()->getStatusCode());
         $this->assertEquals('http://localhost/api/transactions/1', $client->getResponse()->headers->get('Location'));
-        $postParameters = [
-            'operationDate' => '10/02/2017',
-            'valueDate' => '10/02/2017',
-            'description' => 'PAGAMENTO TRAMITE POS',
-            'reason' => 'POS CARTA 124567 DEL 10/02/2017 ORE 20:44 C/O 1234567890 PINCO PALLO',
-            'revenue' => 0,
-            'expenditure' => -10.00,
-            'currency' => 'EUR',
-        ];
         $client = $this->createClient();
+        $csvPayload = '02/02/2017,01/02/2017,PAGAMENTO TRAMITE POS,POS CARTA 03055510 DEL 01/02/17 ORE 13.41 C/O 321868700233 WATER AND SOAP- MILANO NF,,-13.09,EUR';
+        $postParameters = [
+            'data' => $csvPayload
+        ];
         $client->request('POST', '/api/transactions/', $postParameters);
         $this->assertEquals(201, $client->getResponse()->getStatusCode());
         $this->assertEquals('http://localhost/api/transactions/2', $client->getResponse()->headers->get('Location'));
@@ -168,27 +202,16 @@ class ApplicationTest extends WebTestCase
     public function testShouldPreviewATransactionsForASpecificMonth()
     {
         $client = $this->createClient();
+        $csvPayload = '02/02/2017,02/02/2017,PAGAMENTO TRAMITE POS,POS CARTA 124567 DEL 09/02/2017 ORE 13:44 C/O 1234567890 PINCO PALLO,,-12.09,EUR';
         $postParameters = [
-            'operationDate' => '09/02/2017',
-            'valueDate' => '09/02/2017',
-            'description' => 'PAGAMENTO TRAMITE POS',
-            'reason' => 'POS CARTA 124567 DEL 09/02/2017 ORE 13:44 C/O 1234567890 PINCO PALLO',
-            'revenue' => 0,
-            'expenditure' => -18.11,
-            'currency' => 'EUR',
+            'data' => $csvPayload
         ];
         $client->request('POST', '/api/transactions/', $postParameters);
+        $csvPayload = '02/02/2017,02/02/2017,PAGAMENTO TRAMITE POS,POS CARTA 124567 DEL 10/02/2017 ORE 23:00 C/O 1234567890 PINCO PALLO,,-13.09,EUR';
         $postParameters = [
-            'operationDate' => '10/02/2017',
-            'valueDate' => '10/02/2017',
-            'description' => 'PAGAMENTO TRAMITE POS',
-            'reason' => 'POS CARTA 124567 DEL 10/02/2017 ORE 23:00 C/O 1234567890 PINCO PALLO',
-            'revenue' => 0,
-            'expenditure' => -8.11,
-            'currency' => 'EUR',
+            'data' => $csvPayload
         ];
         $client->request('POST', '/api/transactions/', $postParameters);
-        $client = $this->createClient();
         $client->request('GET', '/transactions/2017/02');
         $this->assertContains(
             'POS CARTA 124567 DEL 09/02/2017 ORE 13:44 C/O 1234567890 PINCO PALLO',
@@ -226,14 +249,9 @@ class ApplicationTest extends WebTestCase
     public function testShouldUnderscoreASelectedTransaction()
     {
         $client = $this->createClient();
+        $csvPayload = '02/02/2017,02/02/2017,PAGAMENTO TRAMITE POS,POS CARTA 124567 DEL 09/02/2017 ORE 13:44 C/O 1234567890 PINCO PALLO,,-12.09,EUR';
         $postParameters = [
-            'operationDate' => '09/02/2017',
-            'valueDate' => '09/02/2017',
-            'description' => 'PAGAMENTO TRAMITE POS',
-            'reason' => 'POS CARTA 124567 DEL 09/02/2017 ORE 13:44 C/O 1234567890 PINCO PALLO',
-            'revenue' => 0,
-            'expenditure' => -18.11,
-            'currency' => 'EUR',
+            'data' => $csvPayload
         ];
         $client->request('POST', '/api/transactions/', $postParameters);
         $client = $this->createClient();
@@ -254,15 +272,11 @@ class ApplicationTest extends WebTestCase
 
     public function testShouldUnderscoreAndRemoveUnderscoreFromSelectedTransaction()
     {
+
         $client = $this->createClient();
+        $csvPayload = '02/02/2017,02/02/2017,PAGAMENTO TRAMITE POS,POS CARTA 124567 DEL 09/02/2017 ORE 13:44 C/O 1234567890 PINCO PALLO,,-12.09,EUR';
         $postParameters = [
-            'operationDate' => '09/02/2017',
-            'valueDate' => '09/02/2017',
-            'description' => 'PAGAMENTO TRAMITE POS',
-            'reason' => 'POS CARTA 124567 DEL 09/02/2017 ORE 13:44 C/O 1234567890 PINCO PALLO',
-            'revenue' => 0,
-            'expenditure' => -18.11,
-            'currency' => 'EUR',
+            'data' => $csvPayload
         ];
         $client->request('POST', '/api/transactions/', $postParameters);
         $client = $this->createClient();
@@ -283,6 +297,13 @@ class ApplicationTest extends WebTestCase
         if ( $actual != $expected) {
             $this->fail("Found {$actual} elements but was expected {$expected}");
         }
+    }
+
+    private function printTuple()
+    {
+        $sql = 'SELECT * FROM transactions';
+        $actualState = $this->app['db']->fetchAll($sql);
+        print_r($actualState);
     }
 
     private function dbSetup()

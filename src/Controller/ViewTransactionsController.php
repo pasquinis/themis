@@ -32,7 +32,7 @@ class ViewTransactionsController
         $leftDate = "{$year}-{$month}-" . self::FIRST_DAY_OF_MONTH;
         $rightDate = "{$year}-{$month}-" . self::LAST_DAY_OF_MONTH;
 
-        $sql = "SELECT * FROM transactions WHERE valuedate BETWEEN '{$leftDate}' AND '{$rightDate}'";
+        $sql = "SELECT * FROM transactions WHERE valuedate BETWEEN '{$leftDate}' AND '{$rightDate}' ORDER BY valuedate";
         $transactions = $application['db']->fetchAll($sql);
 
         $toPreview = [];
