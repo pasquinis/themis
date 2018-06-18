@@ -45,6 +45,7 @@ class ApplicationTest extends WebTestCase
     public function testShouldCreateForBancaIntesaANewTransactionsWithCSVPayload()
     {
         $client = $this->createClient();
+        // $csvPayload = '02/01/18,29/12/17,Pagamento tramite pos,,-227.60,Supermercato Esselunga Via 29 121846  Carta N6762 Xxxx Xxxx Xx53abi  05584 Cod3010024 008655,CARTA BANCOCARD                **** 53';
         $csvPayload = '02/01/18,29/12/17,Pagamento tramite pos,,-227.60,Supermercato Esselunga Via 29 121846  Carta N6762 Xxxx Xxxx Xx53abi  05584 Cod3010024 008655,CARTA BANCOCARD                **** 53';
         $postParameters = [
             'data' => $csvPayload
