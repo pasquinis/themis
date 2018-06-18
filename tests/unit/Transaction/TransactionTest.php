@@ -13,17 +13,26 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(true))
         ;
 
-        //Populate the callback
         //TODO remove this duplication
         $config = [
-            'operationDate' => '20/09/17',
-            'valueDate' => '20/09/17',
+            'operationDate' => '09-20-17',
+            'valueDate' => '09-20-17',
             'description' => 'Bonifici in uscita',
             'description_extended' => 'RISTRUTT./EFF. ENERG./MOB. ELETTR. ART. 16BIS TUIR Saldo Lavori',
             'bank_account' => 'Conto 1000/1234',
             'revenue' => '',
             'expenditure' => '-3,800.00',
         ];
+        //TODO this is when BancaIntesa use a different CSV output
+        // $config = [
+        //     'operationDate' => '20/09/17',
+        //     'valueDate' => '20/09/17',
+        //     'description' => 'Bonifici in uscita',
+        //     'description_extended' => 'RISTRUTT./EFF. ENERG./MOB. ELETTR. ART. 16BIS TUIR Saldo Lavori',
+        //     'bank_account' => 'Conto 1000/1234',
+        //     'revenue' => '',
+        //     'expenditure' => '-3,800.00',
+        // ];
         $this->request
             ->method('offsetGet')
             ->will($this->returnCallback(
