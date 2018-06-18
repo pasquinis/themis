@@ -7,6 +7,7 @@ use Themis\Controller\Provider\Api\Transactions;
 use Themis\Controller\Provider\Api\TransactionsForIntesa;
 use Themis\Controller\Provider\View\Transactions as ViewTransactions;
 use Themis\Controller\Provider\View\Dashboard as ViewDashboard;
+use Themis\Controller\Provider\View\Blank as ViewBlank;
 use \Silex\Provider\DoctrineServiceProvider;
 use \Silex\Provider\TwigServiceProvider;
 
@@ -30,5 +31,6 @@ class Application extends \Silex\Application
         $this->mount('/api/intesa/transactions', new TransactionsForIntesa());
         $this->mount('/transactions', new ViewTransactions());
         $this->mount('/dashboard', new ViewDashboard());
+        $this->mount('/', new ViewBlank());
     }
 }

@@ -27,9 +27,6 @@ class ApplicationTest extends WebTestCase
         return $app;
     }
 
-    /**
-     * @expectedException Exception
-     */
     public function testShouldReturn404WhenICallHomeRoot()
     {
         $client = $this->createClient();
