@@ -56,6 +56,35 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('EUR', $transaction->currency());
     }
 
+    public function testShouldCreateATransactionWithExpenditureAmountLowerOneEuro()
+    {
+        $config = [
+            'operationDate' => '09-20-17',
+            'valueDate' => '09-20-17',
+            'description' => 'Bonifici in uscita',
+            'description_extended' => 'RISTRUTT./EFF. ENERG./MOB. ELETTR. ART. 16BIS TUIR Saldo Lavori',
+            'bank_account' => 'Conto 1000/1234',
+            'revenue' => '',
+            'expenditure' => '-0.8',
+        ];
+        $request = $this->createMock(Request::class);
+        $request
+            ->method('offsetExists')
+            ->will($this->returnValue(true))
+        ;
+        $request
+            ->method('offsetGet')
+            ->will($this->returnCallback(
+                function ($key) use ($config) {
+                    return $config[$key];
+                }
+            ))
+        ;
+
+        $transaction = Transaction::byRequest($request);
+        $this->assertEquals('-0.8', $transaction->expenditure());
+    }
+
     public function testShouldHaveAnArrayRepresentationOfTransaction()
     {
         $transaction = Transaction::byRequest($this->request);

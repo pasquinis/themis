@@ -77,12 +77,12 @@ class Transaction implements ArrayAccess
 
         $forgingAmount = function ($amount, $type) {
             if (
-                $type == 'revenue' && (int)$amount > 0
+                $type == 'revenue' && (float) $amount > 0
             ) {
                 return $this->forgeAmount($amount);
             }
             if (
-                $type == 'expenditure' && (int)$amount < 0
+                $type == 'expenditure' && (float) $amount < 0
             ) {
                 return $this->forgeAmount($amount);
             }
