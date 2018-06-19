@@ -41,6 +41,14 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Conto 1000/0001', $boxed['bank_account']);
     }
 
+    public function testShouldBoxAnHttpRequestWithAnExpenditureLowerThenOne()
+    {
+        $this->httpRequest->initialize([], ['data' => '05-31-18,Commissioni E Spese Adue,Mandato B6h6q40000000188878093 Nome Telepass S.p.a. A,Conto 1000/0001,CONTABILIZZATO,"Imposte, bolli e commissioni",EUR,-0.8']);
+
+        $boxed = Request::box($this->httpRequest);
+        $this->assertEquals('-0.8', $boxed['expenditure']);
+    }
+
     /**
      * @expectedException Symfony\Component\HttpKernel\Exception\BadRequestHttpException
      */
@@ -55,7 +63,17 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testShouldRejectTransactionWhenAccountingIsNotYetAccounted()
     {
-        $this->httpRequest->initialize([], ['data' => '9/20/2017,Assegno N. 343,Assegno N. 831964Xxxx,Conto 1000/00014003,NON CONTABILIZZATO,Assegni pagati,EUR,-903.00']);
+        $this->httpRequest->initialize([], ['data' => '05-14-18,Patzschke GmbH,Patzschke GmbH Innsbruck,CLASSIC CARD MASTERCARD        ****539832011328,NON CONTABILIZZATO,Viaggi e vacanze,EUR,-1.0']);
         Request::box($this->httpRequest);
     }
+
+    //TODO sometimes the xlsx return this information.
+    // /**
+    //  * @expectedException Symfony\Component\HttpKernel\Exception\BadRequestHttpException
+    //  */
+    // public function testShouldRejectTransactionWhenAccountingIsNotYetAccounted()
+    // {
+    //     $this->httpRequest->initialize([], ['data' => '9/20/2017,Assegno N. 343,Assegno N. 831964Xxxx,Conto 1000/00014003,NON CONTABILIZZATO,Assegni pagati,EUR,-903.00']);
+    //     Request::box($this->httpRequest);
+    // }
 }

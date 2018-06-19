@@ -9,9 +9,12 @@ class Request implements ArrayAccess
 {
     private $request;
 
+    const UNACCOUNTED = 'NON CONTABILIZZATO';
+
     public function __construct($request)
     {
         $this->mapRequest($request);
+        $this->isUnaccounted();
         $this->isWellformed();
     }
 
@@ -42,6 +45,7 @@ class Request implements ArrayAccess
         $this->request['expenditure'] = $this->getAmount($request[7], 'expenditure');
         $this->request['description_extended'] = $request[2];
         $this->request['bank_account'] = $request[3];
+        $this->request['state'] = $request[4];
     }
 
     public static function box(HttpRequest $request)
@@ -60,6 +64,7 @@ class Request implements ArrayAccess
 
     //     return true;
     // }
+
     public function isWellformed()
     {
         preg_match('#[\d]{2}-[\d]{2}-[\d]{2}#', $this->request['operationDate'], $matches);
@@ -68,6 +73,17 @@ class Request implements ArrayAccess
         }
 
         return true;
+    }
+
+    public function isUnaccounted()
+    {
+        if (self::UNACCOUNTED === $this->request['state']) {
+            throw new BadRequestHttpException(
+                "Error, this data is UNACCOUNTED " . var_export($this->request, true)
+            );
+        }
+
+        return false;
     }
 
     public function offsetExists($offset)
