@@ -7,15 +7,15 @@ RUN apk update && \
         'ca-certificates' \
         'wget' \
         'sqlite' \
-        'php5=5.6.36-r0' \
-        'php5-json=5.6.36-r0' \
-        'php5-openssl=5.6.36-r0' \
-        'php5-zlib=5.6.36-r0' \
-        'php5-dom=5.6.36-r0' \
-        'php5-sqlite3=5.6.36-r0' \
-        'php5-pdo_sqlite=5.6.36-r0' \
-        'php5-phar=5.6.36-r0' \
-        'php5-ctype=5.6.36-r0' && \
+        'php5=5.6.38-r0' \
+        'php5-json=5.6.38-r0' \
+        'php5-openssl=5.6.38-r0' \
+        'php5-zlib=5.6.38-r0' \
+        'php5-dom=5.6.38-r0' \
+        'php5-sqlite3=5.6.38-r0' \
+        'php5-pdo_sqlite=5.6.38-r0' \
+        'php5-phar=5.6.38-r0' \
+        'php5-ctype=5.6.38-r0' && \
     rm -rf /var/cache/apk/*
 
 RUN wget https://getcomposer.org/installer && \
